@@ -1,7 +1,8 @@
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.utilities;
 
 import ennuo.craftworld.types.FileArchive;
 import ennuo.toolkit.utilities.Globals;
+import ennuo.toolkit.windows.Toolkit;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 

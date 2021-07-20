@@ -1,4 +1,4 @@
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.editors;
 
 import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.memory.Bytes;
@@ -24,6 +24,7 @@ import javax.swing.JFrame;
 import ennuo.craftworld.resources.enums.Crater;
 import ennuo.craftworld.resources.structs.PackItem;
 import ennuo.toolkit.utilities.Globals;
+import ennuo.toolkit.windows.Toolkit;
 import java.util.Date;
 import javax.swing.JTextField;
 

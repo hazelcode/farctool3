@@ -1,4 +1,4 @@
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.utilities;
 
 import ennuo.craftworld.resources.enums.Magic;
 import ennuo.craftworld.memory.Bytes;

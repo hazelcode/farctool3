@@ -1,5 +1,5 @@
 
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.utilities;
 
 import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.memory.Bytes;
@@ -7,6 +7,7 @@ import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.Resource;
 import ennuo.craftworld.memory.ResourcePtr;
 import ennuo.toolkit.utilities.Globals;
+import ennuo.toolkit.windows.Toolkit;
 import java.nio.file.Paths;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;

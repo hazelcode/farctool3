@@ -16,7 +16,7 @@ import ennuo.craftworld.types.FileDB;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.types.Mod;
 import ennuo.toolkit.utilities.Globals;
-import ennuo.toolkit.windows.ModEditor;
+import ennuo.toolkit.windows.editors.ModEditor;
 import ennuo.toolkit.windows.Toolkit;
 import java.io.File;
 import javax.swing.JOptionPane;

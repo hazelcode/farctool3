@@ -1,5 +1,11 @@
 package ennuo.toolkit.windows;
 
+import ennuo.toolkit.windows.utilities.ArchiveSelector;
+import ennuo.toolkit.windows.utilities.Compressinator;
+import ennuo.toolkit.windows.utilities.Dependinator;
+import ennuo.toolkit.windows.editors.SlotEditor;
+import ennuo.toolkit.windows.editors.ModEditor;
+import ennuo.toolkit.windows.editors.MetadataEditor;
 import com.bulenkov.darcula.DarculaLaf;
 import ennuo.craftworld.types.BigProfile;
 import ennuo.craftworld.types.FileArchive;

@@ -1,8 +1,9 @@
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.editors;
 
 import ennuo.craftworld.memory.Images;
 import ennuo.craftworld.types.Mod;
 import ennuo.toolkit.utilities.FileChooser;
+import ennuo.toolkit.windows.Toolkit;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;

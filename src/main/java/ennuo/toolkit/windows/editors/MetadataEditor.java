@@ -1,4 +1,4 @@
-package ennuo.toolkit.windows;
+package ennuo.toolkit.windows.editors;
 
 import ennuo.craftworld.types.BigProfile;
 import ennuo.craftworld.memory.Bytes;
@@ -28,6 +28,7 @@ import ennuo.craftworld.resources.structs.UserCreatedDetails;
 import ennuo.craftworld.things.InventoryMetadata;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.toolkit.utilities.Globals;
+import ennuo.toolkit.windows.Toolkit;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
