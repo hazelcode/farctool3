@@ -1,6 +1,6 @@
 package ennuo.craftworld.resources;
 
-import ennuo.craftworld.memory.Resource;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Images;
 import ennuo.craftworld.memory.Morton2D;

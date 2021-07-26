@@ -1,5 +1,9 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Vector2f;
+import ennuo.craftworld.types.data.Vector3f;
+import ennuo.craftworld.types.data.Vector4f;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;

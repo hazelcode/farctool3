@@ -1,9 +1,9 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.Resource;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.resources.Mesh;
 import ennuo.craftworld.resources.enums.Metadata;
 import ennuo.craftworld.resources.structs.Slot;

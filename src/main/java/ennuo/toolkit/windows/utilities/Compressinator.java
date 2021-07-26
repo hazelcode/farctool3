@@ -6,7 +6,7 @@ import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Strings;
 import ennuo.craftworld.resources.enums.RType;
-import ennuo.craftworld.memory.ResourcePtr;
+import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.toolkit.utilities.FileChooser;
 import java.io.File;
 import java.util.ArrayList;

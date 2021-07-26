@@ -1,8 +1,8 @@
 package ennuo.toolkit.utilities;
 
 import ennuo.craftworld.memory.FileIO;
-import ennuo.craftworld.memory.Resource;
-import ennuo.craftworld.memory.ResourcePtr;
+import ennuo.craftworld.types.Resource;
+import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.resources.Animation;
 import ennuo.craftworld.resources.GfxMaterial;
 import ennuo.craftworld.resources.Mesh;

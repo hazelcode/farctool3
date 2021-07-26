@@ -1,14 +1,14 @@
 package ennuo.craftworld.resources;
 
-import ennuo.craftworld.memory.Resource;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.resources.structs.mesh.Bone;
 import ennuo.craftworld.resources.structs.mesh.MeshPrimitive;
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.ResourcePtr;
-import ennuo.craftworld.memory.Vector2f;
-import ennuo.craftworld.memory.Vector3f;
-import ennuo.craftworld.memory.Vector4f;
+import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Vector2f;
+import ennuo.craftworld.types.data.Vector3f;
+import ennuo.craftworld.types.data.Vector4f;
 import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.structs.mesh.CullBone;
 import ennuo.craftworld.resources.structs.mesh.ImplicitEllipsoid;
@@ -18,7 +18,7 @@ import ennuo.craftworld.resources.structs.mesh.SkinWeight;
 import ennuo.craftworld.resources.structs.mesh.SoftbodyCluster;
 import ennuo.craftworld.resources.structs.mesh.SoftbodySpring;
 import ennuo.craftworld.resources.structs.mesh.SoftbodyVertEquivalence;
-import ennuo.toolkit.functions.DebugCallbacks;
+import ennuo.toolkit.callbacks.DebugCallbacks;
 import java.util.ArrayList;
 
 public class Mesh {

@@ -3,7 +3,7 @@ package ennuo.craftworld.resources;
 import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.ResourcePtr;
+import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.resources.structs.PackItem;
 import java.util.ArrayList;
 

@@ -24,7 +24,7 @@ public class EasterEgg {
         }
 
         if (username.equals("shan") || username.equals("aidan")) {
-            toolkit.setTitle("GregTool w/ Andre");
+            toolkit.setTitle("Craftworld Explorer");
             toolkit.debugMenu.setVisible(true);
         }
 

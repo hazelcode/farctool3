@@ -1,4 +1,4 @@
-package ennuo.craftworld.memory;
+package ennuo.craftworld.types.data;
 
 public class Vector2f {
     public float x, y;

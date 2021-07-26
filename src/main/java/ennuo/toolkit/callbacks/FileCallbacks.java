@@ -1,4 +1,4 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import ennuo.craftworld.swing.FileData;
 import ennuo.craftworld.types.FileArchive;

@@ -1,4 +1,4 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import de.javagl.jgltf.impl.v2.Accessor;
 import de.javagl.jgltf.impl.v2.Asset;
@@ -18,9 +18,9 @@ import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.Resource;
-import ennuo.craftworld.memory.ResourcePtr;
-import ennuo.craftworld.memory.Vector3f;
+import ennuo.craftworld.types.Resource;
+import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Vector3f;
 import ennuo.craftworld.resources.enums.Crater;
 import ennuo.craftworld.resources.enums.ItemType;
 import ennuo.craftworld.resources.enums.RType;
@@ -42,7 +42,7 @@ import ennuo.craftworld.things.Serializer;
 import ennuo.craftworld.types.BigProfile;
 import ennuo.craftworld.types.FileDB;
 import ennuo.craftworld.types.FileEntry;
-import ennuo.craftworld.types.Matrix4x4;
+import ennuo.craftworld.types.data.Matrix4x4;
 import ennuo.craftworld.types.Mod;
 import ennuo.toolkit.utilities.Globals;
 import ennuo.toolkit.utilities.Globals.WorkspaceType;

@@ -1,5 +1,7 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.types.Resource;
+import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.types.Mod;
 import ennuo.craftworld.resources.enums.RType;

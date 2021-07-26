@@ -2,7 +2,7 @@ package ennuo.craftworld.resources;
 
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Data;
-import ennuo.craftworld.memory.Vector4f;
+import ennuo.craftworld.types.data.Vector4f;
 import ennuo.craftworld.resources.structs.animation.AnimationBone;
 import ennuo.craftworld.resources.structs.animation.Locator;
 

@@ -2,7 +2,7 @@ package ennuo.craftworld.resources.structs.animation;
 
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.Vector3f;
+import ennuo.craftworld.types.data.Vector3f;
 
 public class Locator {
     public Vector3f position;

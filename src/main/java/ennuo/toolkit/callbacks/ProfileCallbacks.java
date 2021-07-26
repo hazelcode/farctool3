@@ -1,8 +1,8 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.FileIO;
-import ennuo.craftworld.memory.Resource;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.BigProfile;
 import ennuo.toolkit.windows.Toolkit;
 import java.io.File;

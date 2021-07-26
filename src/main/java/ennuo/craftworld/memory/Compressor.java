@@ -1,5 +1,6 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.types.data.ResourcePtr;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.zip.Deflater;

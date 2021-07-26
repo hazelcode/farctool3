@@ -1,11 +1,11 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.Resource;
-import ennuo.craftworld.memory.ResourcePtr;
+import ennuo.craftworld.types.Resource;
+import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.resources.TranslationTable;
 import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.io.MeshIO;
@@ -17,7 +17,7 @@ import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.types.Mod;
 import ennuo.toolkit.utilities.Globals;
 import ennuo.toolkit.windows.Toolkit;
-import ennuo.toolkit.functions.ModCallbacks;
+import ennuo.toolkit.callbacks.ModCallbacks;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;

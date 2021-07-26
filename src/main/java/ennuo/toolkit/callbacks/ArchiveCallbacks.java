@@ -1,7 +1,7 @@
-package ennuo.toolkit.functions;
+package ennuo.toolkit.callbacks;
 
 import ennuo.craftworld.memory.FileIO;
-import ennuo.craftworld.memory.Resource;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.swing.FileModel;
 import ennuo.craftworld.swing.FileNode;
 import ennuo.craftworld.types.BigProfile;
