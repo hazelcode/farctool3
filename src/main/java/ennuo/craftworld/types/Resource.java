@@ -30,9 +30,9 @@ public class Resource extends Data {
         super(data);
         if (this.data != null && this.data.length > 0x16) {
             this.type = ResourceType.fromMagic(str(3));
-            if (type == ResourceType.INVALID) return;
+            if (type == ResourceType.INVALID) { seek(0); return; };
             this.method = SerializationType.getValue(str(1));
-            if (this.method == SerializationType.UNKNOWN) return;
+            if (this.method == SerializationType.UNKNOWN) { seek(0); return; }
             this.isCompressed = true;
             this.revision = new Revision(int32f());
             this.dependencyOffset = int32f();
@@ -184,7 +184,7 @@ public class Resource extends Data {
     }
     
     public int getDependencies(FileEntry entry, boolean recursive) {
-        if (this.method != SerializationType.BINARY)
+        if (this.method != SerializationType.BINARY  && this.method != SerializationType.ENCRYPTED_BINARY)
             return 0;
 
         ResourcePtr self = new ResourcePtr();
@@ -265,6 +265,7 @@ public class Resource extends Data {
             }
             case GXT_SIMPLE: seek(30); break;
             case GXT_EXTENDED: seek(50); break;
+            case ENCRYPTED_BINARY:
             case BINARY: {
                 seek(12);
                 if (this.revision.head > 0x26e)
@@ -278,6 +279,8 @@ public class Resource extends Data {
         byte[] data = Compressor.decompress(this);
         if (set) {
             this.isCompressed = false;
+            if (this.method == SerializationType.ENCRYPTED_BINARY)
+                this.method = SerializationType.BINARY;
             setData(data);
         }
         

@@ -51,6 +51,13 @@ public class Compressor {
     }
     
     public static byte[] decompress(Resource data) {
+        if (!data.isCompressed) return data.data;
+        
+        if (data.method == SerializationType.ENCRYPTED_BINARY) {
+            byte[] encrypted = data.bytes(data.int32f());
+            data = new Resource(TEA.Decrypt(encrypted));
+        }
+        
         data.int16(); // Some kind of flag? Irrelevant, moving past! //
         
         short chunks = data.int16();
@@ -60,11 +67,9 @@ public class Compressor {
         int[] compressed = new int[chunks];
         int[] decompressed = new int[chunks];
         int decompressedSize = 0;
-        System.out.println(String.format("Current compressed resource has %d streams", chunks));
         for (int i = 0; i < chunks; ++i) {
             compressed[i] = data.uint16();
             decompressed[i] = data.uint16();
-            System.out.println(String.format("[%d] %d:%d", i, compressed[i], decompressed[i]));
             decompressedSize += decompressed[i];
         }
         
@@ -137,7 +142,9 @@ public class Compressor {
         byte compressionFlags = 0x7;
         Output output = new Output(18);
         output.string(type.header);
-        output.string(method.value);
+        if (method == SerializationType.ENCRYPTED_BINARY)
+            output.string(SerializationType.BINARY.value);
+        else output.string(method.value);
         output.int32(revision.head);
         output.int32(output.offset + 4 + compressed.length + ((revision.head > 0x26e) ? 6 : ((revision.head > 0x188) ? 1 : 0)));
         
