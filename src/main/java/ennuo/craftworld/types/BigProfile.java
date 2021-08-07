@@ -10,7 +10,8 @@ import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.resources.enums.Crater;
 import ennuo.craftworld.resources.enums.ItemType;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import ennuo.craftworld.resources.enums.SlotType;
 import ennuo.craftworld.resources.structs.ProfileItem;
 import ennuo.craftworld.resources.structs.SlotID;
@@ -22,6 +23,7 @@ import ennuo.craftworld.swing.Nodes;
 import ennuo.craftworld.things.InventoryItem;
 import ennuo.craftworld.things.InventoryMetadata;
 import ennuo.craftworld.things.Serializer;
+import ennuo.craftworld.types.data.Revision;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -126,7 +128,7 @@ public class BigProfile extends FileData {
       FileEntry entry = new FileEntry(resource.data, sha1); entry.timestamp = 0;
       entry.offset = offset;
       entry.size = size;
-      if (resource.magic.equals("BPRb")) { profile = entry; } 
+      if (resource.type == ResourceType.BIG_PROFILE) { profile = entry; } 
       else { entries.add(entry); if (!isStreamingChunk) addNode(entry); }
     }
     if (!isStreamingChunk) {
@@ -151,7 +153,7 @@ public class BigProfile extends FileData {
 
   public FileNode addNode(FileEntry entry) {
     Resource resource = new Resource(entry.data);
-    String extension = resource.magic.substring(0, 3).toLowerCase();
+    String extension = resource.type.header.toLowerCase();
     switch (extension) {
     case "ÿøÿ":
     case "jfi":
@@ -200,7 +202,9 @@ public class BigProfile extends FileData {
     int stringCount = stringCollection.size();
     int slotCount = slots.size();
 
-    Output output = new Output((InventoryMetadata.MAX_SIZE * itemCount) + (itemCount * 0x12) + (Slot.MAX_SIZE * slotCount + 1) + (stringCount * StringEntry.MAX_SIZE + (StringEntry.MAX_SIZE * itemCount)) + 0xFFFF, new Resource(profile.data).revision);
+    Resource profileRes = new Resource(profile.data);
+                
+    Output output = new Output((InventoryMetadata.MAX_SIZE * itemCount) + (itemCount * 0x12) + (Slot.MAX_SIZE * slotCount + 1) + (stringCount * StringEntry.MAX_SIZE + (StringEntry.MAX_SIZE * itemCount)) + 0xFFFF, profileRes.revision);
 
     output.int32(itemCount);
     Serializer serializer = new Serializer(output);
@@ -236,17 +240,17 @@ public class BigProfile extends FileData {
 
       output.resource(item.resource, true);
       
-      if (output.revision > 0x010503EF) output.int32(0);
+      if (output.revision.head > 0x010503EF) output.int32(0);
 
-      if (output.revision > 0x33a) serializer.serializeMetadata(item.metadata, false);
+      if (output.revision.head > 0x33a) serializer.serializeMetadata(item.metadata, false);
       else serializer.serializeLegacyMetadata(item.metadata);
 
-      if (output.revision == 0x3e2) output.int8(1);
+      if (output.revision.head == 0x3e2) output.int8(1);
       output.int8(0x80);
       output.int32(0);
       output.int16((short)(i + 1));
       output.pad(0x3);
-      if (output.revision > 0x33a) {
+      if (output.revision.head > 0x33a) {
         output.int8(item.flags);
         output.pad(0x4);
       } else {
@@ -255,8 +259,8 @@ public class BigProfile extends FileData {
       }
     }
 
-    if (profile.revision >= 0x3e6) output.int8(0); // vita cross dependency hashes
-    if (profile.revision >= 0x3f6) output.int8(0); // data labels
+    if (profile.revision.head >= 0x3e6) output.int8(0); // vita cross dependency hashes
+    if (profile.revision.head >= 0x3f6) output.int8(0); // data labels
 
     stringCount = stringCollection.size();
 
@@ -293,13 +297,13 @@ public class BigProfile extends FileData {
     for (StringEntry entry: stringCollection)
     entry.serialize(output);
 
-    if (profile.revision > 0x33a) output.bool(fromProductionBuild);
+    if (profile.revision.head > 0x33a) output.bool(fromProductionBuild);
 
     output.int32(slotCount);
     for (Slot slot: slots)
         slot.serialize(output, true, true);
     
-    if (output.revision == 0x3e2) {
+    if (output.revision.head == 0x3e2) {
         output.int32(0); // labels
         output.int32(0); output.int32(0); // challenges
         output.int32(0); // treasures
@@ -316,7 +320,7 @@ public class BigProfile extends FileData {
     ResourcePtr[] dependencies = new ResourcePtr[output.dependencies.size()];
     dependencies = output.dependencies.toArray(dependencies);
 
-    profile.data = Compressor.Compress(output.buffer, "BPRb", output.revision, dependencies);
+    profile.data = Compressor.compress(output.buffer, ResourceType.BIG_PROFILE, SerializationType.BINARY, output.revision, dependencies);
     profile.size = profile.data.length;
     profile.hash = Bytes.SHA1(profile.data);
 
@@ -346,7 +350,7 @@ public class BigProfile extends FileData {
     profile.decompress(true);
     this.profile.revision = profile.revision;
     
-    if (profile.revision > 0x010503EF) revision = 3;
+    if (profile.revision.head > 0x010503EF) revision = 3;
     else revision = 1;
     
     int itemCount = profile.int32();
@@ -354,14 +358,14 @@ public class BigProfile extends FileData {
     Serializer serializer = new Serializer(profile);
     for (int i = 0; i < itemCount; ++i) {
       ProfileItem item = new ProfileItem();
-      item.resource = profile.resource(RType.PLAN, true);
-      if (profile.revision > 0x010503EF) item.GUID = profile.int32();
-      if (profile.revision > 0x33a) item.metadata = serializer.ParseMetadata(false);
+      item.resource = profile.resource(ResourceType.PLAN, true);
+      if (profile.revision.head > 0x010503EF) item.GUID = profile.int32();
+      if (profile.revision.head > 0x33a) item.metadata = serializer.ParseMetadata(false);
       else item.metadata = serializer.ParseLBP1BPRMetadata();
-      if (profile.revision == 0x3e2) profile.forward(0x1);
+      if (profile.revision.head == 0x3e2) profile.forward(0x1);
       profile.forward(0x7);
       item.flags = profile.int8();
-      if (profile.revision > 0x33a) profile.forward(0x4);
+      if (profile.revision.head > 0x33a) profile.forward(0x4);
       else {
         profile.forward(0x7);
         item.flags = profile.int8();
@@ -372,7 +376,7 @@ public class BigProfile extends FileData {
     
     System.out.println("vita hashes offset = 0x" + Bytes.toHex(profile.offset));
 
-    if (profile.revision >= 0x3e6) {
+    if (profile.revision.head >= 0x3e6) {
         int hashCount = profile.int32();
         for (int i = 0; i < hashCount; ++i)
             profile.bytes(0x14);
@@ -380,7 +384,7 @@ public class BigProfile extends FileData {
     
     System.out.println("data labels offset = 0x" + Bytes.toHex(profile.offset));
     
-    if (profile.revision >= 0x3f6 && profile.revision != 0x3e2) {
+    if (profile.revision.head >= 0x3f6 && profile.revision.head != 0x3e2) {
         int labelCount = profile.int32();
         for (int i = 0; i < labelCount; ++i) {
             profile.int32();
@@ -414,7 +418,7 @@ public class BigProfile extends FileData {
       nextIndex++;
     }
 
-    if (profile.revision > 0x33a) fromProductionBuild = profile.bool();
+    if (profile.revision.head > 0x33a) fromProductionBuild = profile.bool();
 
     System.out.println("slots offset = 0x" + Bytes.toHex(profile.offset));
     
@@ -431,7 +435,7 @@ public class BigProfile extends FileData {
       if (category != null) item.metadata.translatedCategory = category.string;
     }
     
-    if (profile.revision == 0x3e2) {
+    if (profile.revision.head == 0x3e2) {
         
         // labels
         int labelCount = profile.int32();
@@ -447,7 +451,7 @@ public class BigProfile extends FileData {
         for (int i = 0; i < downloadedSlots.length; ++i)
             downloadedSlots[i] = new SlotID(profile);
         
-        planets = profile.resource(RType.LEVEL, true);
+        planets = profile.resource(ResourceType.LEVEL, true);
     }
     
     
@@ -495,7 +499,7 @@ public class BigProfile extends FileData {
     
     shouldSave = true;
     
-    if (resource.magic.equals("PLNb")) {
+    if (resource.type == ResourceType.PLAN) {
         if (parse) {
         resource.decompress(true);
         Serializer serializer = new Serializer(resource);
@@ -503,12 +507,12 @@ public class BigProfile extends FileData {
         InventoryMetadata metadata = null;
         if (item != null) metadata = item.metadata;
         if (metadata == null) { metadata = new InventoryMetadata(); System.out.println("Metadata is null, using default values..."); }
-        addItem(new ResourcePtr(SHA1, RType.PLAN), metadata);
+        addItem(new ResourcePtr(SHA1, ResourceType.PLAN), metadata);
         }
         return;
     }
     
-    if (resource.magic.equals("LVLb")) {
+    if (resource.type == ResourceType.LEVEL) {
         if (parse) {
         checkForSlotChanges();
         int index = getNextSlot(); 
@@ -526,7 +530,7 @@ public class BigProfile extends FileData {
         
         slot.location = crater.value;
         
-        slot.root = new ResourcePtr(SHA1, RType.LEVEL);
+        slot.root = new ResourcePtr(SHA1, ResourceType.LEVEL);
         
         addSlotNode(slot);
         }
@@ -545,14 +549,14 @@ public class BigProfile extends FileData {
     ProfileItem item = entry.profileItem;
     
     if (item != null) {
-        ResourcePtr newRes = new ResourcePtr(hash, RType.PLAN);
+        ResourcePtr newRes = new ResourcePtr(hash, ResourceType.PLAN);
         item.resource = newRes;
         item.metadata.resource = newRes;
     }
     
     
     if (slot != null)
-        slot.root = new ResourcePtr(hash, RType.LEVEL);
+        slot.root = new ResourcePtr(hash, ResourceType.LEVEL);
     
     entry.hash = hash;
     entry.data = data;
@@ -645,11 +649,11 @@ public class BigProfile extends FileData {
 
           entry.slot = slot;
 
-          int revision = new Resource(extract(entry.hash)).revision;
+          int revision = new Resource(extract(entry.hash)).revision.head;
           if (slot.icon != null && slot.icon.hash != null) {
             FileEntry iconEntry = find(slot.icon.hash);
             if (iconEntry != null) {
-              if (iconEntry.texture != null) slot.renderedIcon = Images.getSlotIcon(iconEntry.texture.getImage(), new Resource(extract(entry.hash)).revision);
+              if (iconEntry.texture != null) slot.renderedIcon = Images.getSlotIcon(iconEntry.texture.getImage(), new Resource(extract(entry.hash)).revision.head);
             }
           }
 

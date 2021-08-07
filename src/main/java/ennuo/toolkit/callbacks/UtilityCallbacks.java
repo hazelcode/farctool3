@@ -5,7 +5,7 @@ import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Output;
 import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.resources.Mesh;
-import ennuo.craftworld.resources.enums.Metadata;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.swing.FileModel;
 import ennuo.craftworld.swing.FileNode;
@@ -230,25 +230,23 @@ public class UtilityCallbacks {
                 entry.GUID = Bytes.toHex(entry.hash).hashCode();
                 
                 String name = "" + entry.offset;
-                switch (resource.magic) {
-                    
-                    case "PLNb": name += ".plan"; break;
-                    case "LVLb": name += ".bin"; break;
+                switch (resource.type) {
+                    case PLAN: name += ".plan"; break;
+                    case LEVEL: name += ".bin"; break;
                     default: 
-                        if (resource.magic.startsWith("#")) resource.magic = "txt";
-                        else if (!(resource.magic.length() == 4 && resource.magic.charAt(3) == 't') && (Metadata.getType(resource.magic, 0) == Metadata.CompressionType.UNKNOWN))
-                            resource.magic = "raw";
-                        
-                        name += "." + resource.magic.substring(0, 3).toLowerCase();
+                        if (resource.type == ResourceType.INVALID)
+                            name += ".raw";
+                        else 
+                            name += "." + resource.type.header.toLowerCase();
                         break;
                 }
                 
                 try {
-                    if (resource.magic.equals("MSHb"))
+                    if (resource.type == ResourceType.MESH)
                         name = (new Mesh(resource.data)).bones[0].name + ".mol";   
                 } catch (Exception e) { System.err.println("Error parsing mesh, defaulting to offset name."); } 
                 
-                entry.path = "resources/" + resource.magic.substring(0, 3).toLowerCase() + "/" + name;
+                entry.path = "resources/" + resource.type.header.toLowerCase() + "/" + name;
                 
                 out.add(entry);
             }

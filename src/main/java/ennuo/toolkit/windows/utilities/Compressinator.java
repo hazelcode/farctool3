@@ -1,12 +1,13 @@
 package ennuo.toolkit.windows.utilities;
 
-import ennuo.craftworld.resources.enums.Magic;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Strings;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Revision;
 import ennuo.toolkit.utilities.FileChooser;
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class Compressinator extends javax.swing.JFrame {
         jFormattedTextField1 = new javax.swing.JFormattedTextField();
         jPanel5 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
-        resourceCombo = new javax.swing.JComboBox(ennuo.craftworld.resources.enums.Magic.values());
+        resourceCombo = new javax.swing.JComboBox(ennuo.craftworld.resources.enums.ResourceType.values());
         jLabel4 = new javax.swing.JLabel();
         revisionLabel = new javax.swing.JLabel();
         revision = new javax.swing.JTextField();
@@ -55,7 +56,7 @@ public class Compressinator extends javax.swing.JFrame {
         hashButton = new javax.swing.JRadioButton();
         guidButton = new javax.swing.JRadioButton();
         ref = new javax.swing.JTextField();
-        typeCombo = new javax.swing.JComboBox(RType.values());
+        typeCombo = new javax.swing.JComboBox(ResourceType.values());
         addEntry = new javax.swing.JButton();
         removeEntry = new javax.swing.JButton();
         compress = new javax.swing.JButton();
@@ -331,7 +332,7 @@ public class Compressinator extends javax.swing.JFrame {
                 return;
             }
 
-            resource.type = (RType) typeCombo.getSelectedItem();
+            resource.type = (ResourceType) typeCombo.getSelectedItem();
             resource.GUID = GUID;
 
             model.add(model.size(), "g" + GUID);
@@ -355,7 +356,7 @@ public class Compressinator extends javax.swing.JFrame {
         revision = Integer.parseInt(revisionString.substring(2), 16);
         else revision = Integer.parseInt(revisionString);
 
-        String header = ((Magic) resourceCombo.getSelectedItem()).value;
+        ResourceType type = ((ResourceType) resourceCombo.getSelectedItem());
 
         ResourcePtr[] dependencies = new ResourcePtr[this.dependencies.size()];
         dependencies = this.dependencies.toArray(dependencies);
@@ -365,9 +366,9 @@ public class Compressinator extends javax.swing.JFrame {
             return;
         }
 
-        byte[] compressed = Compressor.Compress(file, header, revision, dependencies);
+        byte[] compressed = Compressor.compress(file, type, SerializationType.BINARY, new Revision(revision, 0), dependencies);
 
-        File output = fileChooser.openFile("output." + header, "", "", true);
+        File output = fileChooser.openFile("output." + type.header.toLowerCase(), "", "", true);
         if (output != null)
         FileIO.write(compressed, output.getAbsolutePath());
     }//GEN-LAST:event_compressActionPerformed

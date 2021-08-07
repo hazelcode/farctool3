@@ -7,7 +7,7 @@ import ennuo.craftworld.memory.Images;
 import ennuo.craftworld.memory.Output;
 import ennuo.craftworld.patches.ModPatch;
 import ennuo.craftworld.resources.enums.ModCompatibility;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.swing.FileData;
 import ennuo.craftworld.swing.FileModel;
@@ -129,8 +129,8 @@ public class Mod extends FileData {
         
         revision = data.int8();
         
-        if (revision > 5) data.revision = 0x01ae03fa;
-        else data.revision = 0xFFFF;
+        if (revision > 5) data.revision.head = 0x01ae03fa;
+        else data.revision.head = 0xFFFF;
         
         if (revision > Mod.MAX_REVISION) {
             System.err.println(String.format("This mod file (v%s) isn't supported with your version of Craftworld Toolkit (v%s), are you out of date?", String.valueOf(revision), String.valueOf(Mod.MAX_REVISION)));
@@ -180,7 +180,7 @@ public class Mod extends FileData {
             items = new ArrayList<InventoryMetadata>(itemCount);
             for (int i = 0; i < itemCount; ++i) {
                 InventoryMetadata item = new Serializer(data).ParseMetadata();
-                item.resource = data.resource(RType.PLAN, true);
+                item.resource = data.resource(ResourceType.PLAN, true);
                 item.translatedLocation = data.str16();
                 item.translatedCategory = data.str16();
                 if (revision > 4) {

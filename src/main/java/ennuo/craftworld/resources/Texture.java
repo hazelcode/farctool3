@@ -4,7 +4,8 @@ import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Images;
 import ennuo.craftworld.memory.Morton2D;
-import ennuo.craftworld.resources.enums.Metadata.CompressionType;
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -85,23 +86,13 @@ public class Texture extends Resource {
         }
 
         if (null == this.type) parsed = false;
-        else switch (this.type) {
-            case LEGACY_TEXTURE:
-                System.out.println("Decompressing TEX to DDS");
-                decompress(true);
-                break;
-            case GTF_TEXTURE:
-            case GXT_SIMPLE_TEXTURE:
-            case GXT_EXTENDED_TEXTURE:
-                System.out.println("Converting GTF texture to DDS");
-                parseGTF();
-                break;
-            default:
-                parsed = false;
-                break;
-        }
-
-
+        else if (this.type == ResourceType.TEXTURE) {
+            System.out.println("Decompressing TEX to DDS");
+            decompress(true);   
+        } else if (this.type == ResourceType.GXT_TEXTURE || this.type == ResourceType.GTF_TEXTURE) {
+            System.out.println("Converting GTF texture to DDS");
+            parseGTF();
+        } else parsed = false;
     }
 
     public void parseGTF() {
@@ -111,7 +102,7 @@ public class Texture extends Resource {
         System.arraycopy(header, 0, DDS, 0, header.length);
         System.arraycopy(this.data, 0, DDS, header.length, this.length);
         setData(DDS);
-        if (type == CompressionType.GXT_EXTENDED_TEXTURE || type == CompressionType.GXT_SIMPLE_TEXTURE)
+        if (type == ResourceType.GXT_TEXTURE)
             unswizzle();
         else cached = getImage();
     }
@@ -200,10 +191,10 @@ public class Texture extends Resource {
     }
 
     public byte[] getDDSHeader() {
-        if (this.type == CompressionType.GTF_TEXTURE) {
+        if (this.type == ResourceType.GTF_TEXTURE) {
             this.DDSType = this.data[4] & 0xFF;
             seek(12);
-        } else if (this.type == CompressionType.GXT_EXTENDED_TEXTURE) {
+        } else if (this.method == SerializationType.GXT_EXTENDED) {
             this.DDSType = this.data[24] & 0xFF;
             seek(32);
         } else {

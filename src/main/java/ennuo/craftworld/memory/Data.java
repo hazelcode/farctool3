@@ -1,10 +1,11 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Revision;
 import ennuo.craftworld.types.data.Vector2f;
 import ennuo.craftworld.types.data.Vector3f;
 import ennuo.craftworld.types.data.Vector4f;
-import ennuo.craftworld.resources.enums.RType;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.Charset;
@@ -19,16 +20,27 @@ public class Data {
     public int offset;
     public int length;
     
-    public int revision = 0x271;
+    public Revision revision = new Revision(0x271);
     
     public boolean isEncoded() {
-        return this.revision > ENCODED_REVISION && !(this.revision >= 0x273 && this.revision <= 0x297);
+        return this.revision.head > ENCODED_REVISION && !(this.revision.head >= 0x273 && this.revision.head <= 0x297);
     }
 
     public Data(byte[] data) {
         setData(data);
     }
+    
     public Data(byte[] data, int revision) {
+        setData(data);
+        this.revision = new Revision(revision);
+    }
+    
+    public Data(byte[] data, int revision, int branch) {
+        setData(data);
+        this.revision = new Revision(revision, branch);
+    }
+    
+    public Data(byte[] data, Revision revision) {
         setData(data);
         this.revision = revision;
     }
@@ -43,7 +55,7 @@ public class Data {
 
     public Data(String path, int revision) {
         this.path = path;
-        this.revision = revision;
+        this.revision = new Revision(revision);
         byte[] data = FileIO.read(path);
         if (data != null)
             setData(data);
@@ -92,7 +104,7 @@ public class Data {
         return (short)((buffer[0] & 0xFF) << 8 | buffer[1] & 0xFF);
     }
 
-    public int int16LE() {
+    public int uint16() {
         byte[] buffer = bytes(2);
         return buffer[0] << 8 & 0xFF00 | buffer[1] & 0xFF;
     }
@@ -158,20 +170,20 @@ public class Data {
         return matrix;
     }
 
-    public ResourcePtr resource(RType type) {
+    public ResourcePtr resource(ResourceType type) {
         return resource(type, false);
     }
-    public ResourcePtr resource(RType rType, boolean bit) {
+    public ResourcePtr resource(ResourceType rType, boolean bit) {
         byte HASH = 1, GUID = 2;
-        if (revision <= 0x18B) {
+        if (revision.head <= 0x18B) {
             HASH = 2;
             GUID = 1;
         }
 
         byte type;
 
-        if (revision < 0x230) bit = true;
-        if (((revision >= 0x230 && revision <= 0x26e) || (this.revision >= 0x273 && this.revision <= 0x297)) && !bit) this.int8();
+        if (revision.head < 0x230) bit = true;
+        if (((revision.head >= 0x230 && revision.head <= 0x26e) || (this.revision.head >= 0x273 && this.revision.head <= 0x297)) && !bit) this.int8();
 
         if (bit) type = int8();
         else if (isEncoded()) type = (byte) int16();

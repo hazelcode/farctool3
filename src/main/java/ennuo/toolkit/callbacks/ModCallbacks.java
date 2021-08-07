@@ -12,7 +12,7 @@ public class ModCallbacks {
         Mod mod;
         try {
             Data data = new Data(FileIO.read(file.getAbsolutePath()), 0xFFFFFFFF);
-            data.revision = 0xFFFF;
+            data.revision.head = 0xFFFF;
             String password = null;
             if (data.str(0x4).equals("MODe") && data.bool() == true)
                 password = JOptionPane.showInputDialog(Toolkit.instance, "Mod is encrypted! Please input password.", "password");

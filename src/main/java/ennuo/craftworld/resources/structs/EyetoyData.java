@@ -2,8 +2,8 @@ package ennuo.craftworld.resources.structs;
 
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 import java.util.Arrays;
 
 public class EyetoyData {
@@ -19,11 +19,11 @@ public class EyetoyData {
     
     public EyetoyData() {}
     public EyetoyData(Data data) {
-        frame = data.resource(RType.TEXTURE);
-        alphaMask = data.resource(RType.TEXTURE);
+        frame = data.resource(ResourceType.TEXTURE);
+        alphaMask = data.resource(ResourceType.TEXTURE);
         colorCorrection = data.matrix();
         colorCorrectionSrc = new ColorCorrection(data);
-        outline = data.resource(RType.TEXTURE);
+        outline = data.resource(ResourceType.TEXTURE);
     
     }
     

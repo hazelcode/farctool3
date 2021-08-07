@@ -8,6 +8,7 @@ import ennuo.craftworld.resources.structs.ProfileItem;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.swing.FileModel;
 import ennuo.craftworld.things.InventoryItem;
+import ennuo.craftworld.types.data.Revision;
 import java.util.ArrayList;
 
 public class FileEntry {
@@ -22,7 +23,7 @@ public class FileEntry {
   public long GUID = -1;
   public byte[] data = null;
   
-  public int revision = 0;
+  public Revision revision = new Revision(0);
   
   public Mesh mesh;
   public Texture texture;

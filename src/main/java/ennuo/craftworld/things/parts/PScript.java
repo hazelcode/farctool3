@@ -1,12 +1,12 @@
 package ennuo.craftworld.things.parts;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.things.Part;
 import ennuo.craftworld.things.Serializer;
 
 public class PScript implements Part {
-    public ResourcePtr script = new ResourcePtr(null, RType.SCRIPT);
+    public ResourcePtr script = new ResourcePtr(null, ResourceType.SCRIPT);
     public ScriptInstance instanceLayout;
     
     
@@ -17,7 +17,7 @@ public class PScript implements Part {
 
     @Override
     public void Deserialize(Serializer serializer) {
-        script = serializer.input.resource(RType.SCRIPT);
+        script = serializer.input.resource(ResourceType.SCRIPT);
         if (serializer.input.bool())
             instanceLayout = (ScriptInstance) serializer.deserializePart("SCRIPTINSTANCE");
     }

@@ -1,10 +1,10 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.craftworld.types.Mod;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.types.BigProfile;
 import ennuo.toolkit.utilities.Globals;
 import ennuo.toolkit.utilities.KMPMatchUtilities;
@@ -274,7 +274,7 @@ public class Bytes {
         byte[] left = resource.bytes(0x36);
         int planSize = resource.int32f();
         Resource plan = new Resource(resource.bytes(planSize));
-        plan.revision = 0x270;
+        plan.revision.head = 0x270;
         byte[] right = resource.bytes(resource.length - resource.offset);
         plan.getDependencies(entry);
         plan.isStreamingChunk = true;
@@ -285,7 +285,7 @@ public class Bytes {
                 if (res == null) continue;
                 if (plan.dependencies[i] == null)
                     continue;
-                if (res.type == RType.SCRIPT) continue;
+                if (res.type == ResourceType.SCRIPT) continue;
                 byte[] data;
                 if (res.hash != null && res.GUID == -1) data = Globals.extractFile(res.hash);
                 else data = Globals.extractFile(res.GUID);
@@ -319,7 +319,7 @@ public class Bytes {
         if (resource.resources != null)
             for (int i = 0; i < resource.resources.length; ++i) {
                 ResourcePtr res = resource.resources[i];
-                if (res == null || res.type == RType.SCRIPT) continue;
+                if (res == null || res.type == ResourceType.SCRIPT) continue;
                 byte[] data = Globals.extractFile(res);
                 if (data == null) continue;
                 recurse(mod, new Resource(data), resource.dependencies[i]);
@@ -336,9 +336,9 @@ public class Bytes {
             for (int i = 0; i < resource.resources.length; ++i) {
                 ResourcePtr res = resource.resources[i];
                 if (res == null) continue;
-                if (res.type == RType.SCRIPT) continue;
-                if (res.type == RType.PLAN && res.GUID != -1) resource.removePlanDescriptors(res.GUID, false);
-                if (res.type == RType.STREAMING_CHUNK) {
+                if (res.type == ResourceType.SCRIPT) continue;
+                if (res.type == ResourceType.PLAN && res.GUID != -1) resource.removePlanDescriptors(res.GUID, false);
+                if (res.type == ResourceType.STREAMING_CHUNK) {
                     if (res.GUID == -1) continue;
                     String name = new File(resource.dependencies[i].path).getName();
                     File file = Toolkit.instance.fileChooser.openFile(name, ".farc", "Streaming Chunk", false);
@@ -354,9 +354,9 @@ public class Bytes {
                             }
                         }
                         if (index != -1)
-                            resource.replaceDependency(index, new ResourcePtr(hashinateStreamingChunk(mod, new Resource(e.data), e), RType.STREAMING_CHUNK), false);
+                            resource.replaceDependency(index, new ResourcePtr(hashinateStreamingChunk(mod, new Resource(e.data), e), ResourceType.STREAMING_CHUNK), false);
                     }
-                    resource.replaceDependency(i, new ResourcePtr(null, RType.STREAMING_CHUNK), false);
+                    resource.replaceDependency(i, new ResourcePtr(null, ResourceType.STREAMING_CHUNK), false);
                     continue;
                 }
                 byte[] data;
@@ -367,7 +367,7 @@ public class Bytes {
                 resource.replaceDependency(i, new ResourcePtr(hashinate(mod, dependency, resource.dependencies[i]), res.type), false);
             }
             resource.removePlanDescriptors(entry.GUID, false);
-            resource.setData(Compressor.Compress(resource.data, resource.magic, resource.revision, resource.resources));
+            resource.setData(Compressor.compress(resource.data, resource.type, resource.method, resource.revision, resource.resources));
         }
         mod.add(entry.path, resource.data, entry.GUID);
         return Bytes.SHA1(resource.data);

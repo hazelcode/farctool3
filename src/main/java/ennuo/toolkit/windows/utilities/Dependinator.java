@@ -173,7 +173,7 @@ public class Dependinator extends javax.swing.JFrame {
             resource.replaceDependency(i, modifications[i], false);
         }
         
-        resource.setData(Compressor.Compress(resource.data, resource.magic, resource.revision, modifications));
+        resource.setData(Compressor.compress(resource.data, resource.type, resource.method, resource.revision, modifications));
         
         Globals.replaceEntry(entry, resource.data);
         

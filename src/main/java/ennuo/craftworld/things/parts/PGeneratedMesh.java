@@ -1,14 +1,14 @@
 package ennuo.craftworld.things.parts;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.data.Vector4f;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.things.Part;
 import ennuo.craftworld.things.Serializer;
 
 public class PGeneratedMesh implements Part {
-    public ResourcePtr gfxMaterial = new ResourcePtr(null, RType.GFXMATERIAL);
-    public ResourcePtr bevel = new ResourcePtr(null, RType.BEVEL);
+    public ResourcePtr gfxMaterial = new ResourcePtr(null, ResourceType.GFX_MATERIAL);
+    public ResourcePtr bevel = new ResourcePtr(null, ResourceType.BEVEL);
     
     public Vector4f uvOffset = new Vector4f(0, 0, 0, 1);
     public int planGUID;
@@ -35,8 +35,8 @@ public class PGeneratedMesh implements Part {
 
     @Override
     public void Deserialize(Serializer serializer) {
-        gfxMaterial = serializer.input.resource(RType.GFXMATERIAL);
-        bevel = serializer.input.resource(RType.BEVEL);
+        gfxMaterial = serializer.input.resource(ResourceType.GFX_MATERIAL);
+        bevel = serializer.input.resource(ResourceType.BEVEL);
         
         uvOffset = serializer.input.v4();
         

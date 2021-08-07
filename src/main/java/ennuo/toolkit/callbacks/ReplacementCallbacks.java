@@ -3,8 +3,8 @@ package ennuo.toolkit.callbacks;
 import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Images;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.Resource;
-import ennuo.craftworld.resources.enums.Metadata;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.toolkit.utilities.Globals;
 import ennuo.toolkit.windows.Toolkit;
@@ -31,9 +31,9 @@ public class ReplacementCallbacks {
         Resource oldImage = new Resource(Globals.extractFile(entry.hash));
 
         Resource newImage = null;
-        if (oldImage.type == Metadata.CompressionType.GTF_TEXTURE)
+        if (oldImage.type == ResourceType.GTF_TEXTURE)
             newImage = Images.toGTF(image);
-        else if ((oldImage.type == null && oldImage.data == null) || oldImage.type == Metadata.CompressionType.LEGACY_TEXTURE)
+        else if ((oldImage.type == null && oldImage.data == null) || oldImage.type == ResourceType.TEXTURE)
             newImage = Images.toTEX(image);
 
         if (newImage != null) {
@@ -57,7 +57,7 @@ public class ReplacementCallbacks {
             }
             Resource resource = new Resource(original);
             resource.getDependencies(Globals.lastSelected.entry);
-            byte[] out = Compressor.Compress(data, resource.magic, resource.revision, resource.resources);
+            byte[] out = Compressor.compress(data, resource.type, resource.method, resource.revision, resource.resources);
             if (out == null) {
                 System.err.println("Error occurred when compressing data.");
                 return;

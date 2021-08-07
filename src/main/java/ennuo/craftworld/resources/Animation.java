@@ -46,7 +46,7 @@ public class Animation {
         System.out.println("\tmorphsAnimated = " + morphsAnimatedCount);
         System.out.println("\tlocatorKeys = " + locatorKeysCount);
         
-        if (data.revision >= 0x3d9) {
+        if (data.revision.head >= 0x3d9) {
             posOffset = data.v4();
             posScale = data.v4();
         

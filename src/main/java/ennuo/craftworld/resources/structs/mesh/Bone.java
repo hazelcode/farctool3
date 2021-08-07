@@ -26,7 +26,7 @@ public class Bone {
         flags = data.int32();
         animHash = data.uint32();
         parent = data.int32();
-        if (data.revision > 0x271)
+        if (data.revision.head > 0x271)
             parent /= 2;
         firstChild = data.int32();
         nextSibling = data.int32();

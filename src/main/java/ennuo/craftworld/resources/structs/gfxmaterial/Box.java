@@ -19,7 +19,7 @@ public class Box {
            params[i] = data.int32();
        x = data.float32(); y = data.float32();
        z = data.float32(); w = data.float32();
-       if (data.revision > 0x272) {
+       if (data.revision.head > 0x272) {
           subType = data.int32();
           anim = new ParameterAnimation(data);
           anim2 = new ParameterAnimation(data);
@@ -41,7 +41,7 @@ public class Box {
             output.int32(params[i]);
         output.float32(x); output.float32(y);
         output.float32(z); output.float32(w);
-        if (output.revision > 0x272) {
+        if (output.revision.head > 0x272) {
             output.int32(subType);
             anim.serialize(output);
             anim2.serialize(output);

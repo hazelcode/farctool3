@@ -1,12 +1,12 @@
 package ennuo.craftworld.types.data;
 
 import ennuo.craftworld.memory.Bytes;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 
 public class ResourcePtr {
 
     public ResourcePtr() {}
-    public ResourcePtr(RType type, String str) {
+    public ResourcePtr(ResourceType type, String str) {
         long number = -1;
         byte[] bytes = null;
 
@@ -24,16 +24,16 @@ public class ResourcePtr {
         else if (number != -1) GUID = number;
 
     }
-    public ResourcePtr(long GUID, RType type) {
+    public ResourcePtr(long GUID, ResourceType type) {
         this.GUID = GUID;
         this.type = type;
     }
-    public ResourcePtr(byte[] SHA1, RType type) {
+    public ResourcePtr(byte[] SHA1, ResourceType type) {
         this.hash = SHA1;
         this.type = type;
     }
 
-    public RType type = RType.FILE_OF_BYTES;
+    public ResourceType type = ResourceType.FILE_OF_BYTES;
     public long GUID = -1;
     public byte[] hash = null;
 

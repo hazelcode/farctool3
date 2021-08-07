@@ -1,64 +1,57 @@
 package ennuo.craftworld.types;
 
 import ennuo.craftworld.memory.Bytes;
-import ennuo.craftworld.memory.Bytes;
-import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.memory.Compressor;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.types.FileEntry;
-import ennuo.craftworld.types.Mod;
 import ennuo.craftworld.memory.Data;
-import ennuo.craftworld.memory.Data;
-import ennuo.craftworld.memory.Data;
+import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.memory.Output;
-import ennuo.craftworld.resources.enums.Metadata;
-import ennuo.craftworld.resources.enums.Metadata.CompressionType;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import ennuo.craftworld.things.InventoryMetadata;
 import ennuo.craftworld.things.Serializer;
-import ennuo.craftworld.types.FileEntry;
-import ennuo.craftworld.types.Mod;
+import ennuo.craftworld.types.data.Revision;
 import ennuo.toolkit.utilities.Globals;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.zip.Inflater;
 
 public class Resource extends Data {
-
+    public ResourceType type = ResourceType.INVALID;
+    public SerializationType method = SerializationType.BINARY;
+    
     public boolean isStreamingChunk = false;
-
-    public String magic;
-    public CompressionType type;
-
+    public boolean isCompressed = false;
+    
+    public int dependencyOffset;
+    
     public ResourcePtr[] resources = null;
     public FileEntry[] dependencies = null;
 
     public Resource(byte[] data) {
         super(data);
-        if (data != null) {
-            magic = str(4);
-            revision = int32f();
-            type = Metadata.getType(magic, revision);
+        if (this.data != null && this.data.length > 0x16) {
+            this.type = ResourceType.fromMagic(str(3));
+            if (type == ResourceType.INVALID) return;
+            this.method = SerializationType.getValue(str(1));
+            if (this.method == SerializationType.UNKNOWN) return;
+            this.isCompressed = true;
+            this.revision = new Revision(int32f());
+            this.dependencyOffset = int32f();
+            if (revision.head > 0x26e) this.revision.branch = int32f();
             seek(0);
         }
     }
-
 
     // TODO: Actually finish this function, I can serialize the metadata, yes, but //
     // I also need to make sure no dependencies are duplicated in the dependency table, //
     // but I also need to make sure none are removed if they do exist elsewhere. //
     public void replaceMetadata(InventoryMetadata data, boolean compressed) {
-        if (!magic.equals("PLNb")) return;
+        if (this.type != ResourceType.PLAN) return;
 
         if (compressed)
             decompress(true);
 
-        if (revision < 0x272) {
-            System.out.println("lol fuck off");
+        if (revision.head < 0x272) {
+            System.out.println("Metadata below r626 is not supported.");
             return;
         }
 
@@ -67,17 +60,16 @@ public class Resource extends Data {
         Output output = new Output(InventoryMetadata.MAX_SIZE);
         Serializer serializer = new Serializer(output);
 
-        if (revision <= 0x272) serializer.serializeLegacyMetadata(data, true);
+        if (revision.head <= 0x272) serializer.serializeLegacyMetadata(data, true);
         else serializer.serializeMetadata(data, true);
 
         output.shrinkToFit();
     }
 
     public void removePlanDescriptors(long GUID, boolean compressed) {
-        if (!magic.equals("PLNb")) return;
+        if (this.type != ResourceType.PLAN) return;
         if (compressed)
             decompress(true);
-
 
         if (peek() == 1 || peek() == 0) bool();
         int32();
@@ -97,7 +89,7 @@ public class Resource extends Data {
         output.uint32(GUID);
         output.shrinkToFit();
 
-        Bytes.ReplaceAll(thingData, Bytes.createResourceReference(new ResourcePtr(GUID, RType.PLAN), revision), new byte[] { 00 });
+        Bytes.ReplaceAll(thingData, Bytes.createResourceReference(new ResourcePtr(GUID, ResourceType.PLAN), revision.head), new byte[] { 00 });
         Bytes.ReplaceAll(thingData, output.buffer, new byte[] { 00 });
 
         Output sb = new Output(6, revision);
@@ -112,15 +104,15 @@ public class Resource extends Data {
         ));
 
         if (compressed)
-            setData(Compressor.Compress(data, magic, revision, resources));
+            setData(Compressor.compress(this));
     }
 
     public void replaceDependency(int index, ResourcePtr replacement, boolean compressed) {
         ResourcePtr dependency = resources[index];
         if (dependency == null || (dependency.GUID == -1 && dependency.hash == null) || dependencies.length == 0) return;
 
-        int tRevision = revision;
-        if (magic.equals("SMHb")) tRevision = 0x271;
+        int tRevision = revision.head;
+        if (this.type == ResourceType.STATIC_MESH) tRevision = 0x271;
 
         byte[] oldRes = Bytes.createResourceReference(dependency, tRevision);
         byte[] newRes = Bytes.createResourceReference(replacement, tRevision);
@@ -133,7 +125,7 @@ public class Resource extends Data {
 
         Data data = this;
 
-        if (magic.equals("PLNb")) {
+        if (this.type == ResourceType.PLAN) {
 
             if (data.peek() == 1 || data.peek() == 0 || isStreamingChunk) data.bool();
             data.int32();
@@ -172,7 +164,7 @@ public class Resource extends Data {
         resources[index] = replacement;
 
         if (compressed)
-            setData(Compressor.Compress(data.data, magic, revision, resources));
+            setData(Compressor.compress(this));
     }
     
     public Mod recurse(FileEntry entry) {
@@ -190,8 +182,9 @@ public class Resource extends Data {
     public int getDependencies(FileEntry entry) {
         return getDependencies(entry, true);
     }
+    
     public int getDependencies(FileEntry entry, boolean recursive) {
-        if (type != CompressionType.CUSTOM_COMPRESSION && type != CompressionType.CUSTOM_COMPRESSION_LEGACY && type != CompressionType.STATIC_MESH)
+        if (this.method != SerializationType.BINARY)
             return 0;
 
         ResourcePtr self = new ResourcePtr();
@@ -222,12 +215,12 @@ public class Resource extends Data {
                     break;
             }
             if (dependencies[i] == null) missingDependencies++;
-            resources[i].type = RType.getValue(int32f());
+            resources[i].type = ResourceType.fromType(int32f());
             if (dependencies[i] != null && entry != null && recursive && !self.equals(resources[i])) {
                 byte[] data = Globals.extractFile(dependencies[i].hash);
                 if (data != null) {
                     Resource resource = new Resource(data);
-                    if (resource.magic.equals("FSHb")) continue;
+                    if (resource.type == ResourceType.SCRIPT) continue;
                     resource.getDependencies(dependencies[i]);
                     dependencies[i].dependencies = resource.dependencies;
                 }
@@ -236,86 +229,58 @@ public class Resource extends Data {
         seek(0);
         return missingDependencies;
     }
-
+    
+    public byte[] compress() { return compress(false); }
     public byte[] decompress() {
         return decompress(false);
     }
     
+    public byte[] compress(boolean set) {
+        if (this.isCompressed || this.method == SerializationType.TEXT) return this.data;
+        if (this.type == ResourceType.INVALID) return null;
+        byte[] data = Compressor.compress(this);
+        if (set) {
+            this.isCompressed = true;
+            setData(data);
+        }
+        return data;
+    }
+    
     public byte[] decompress(boolean set) {
-        if (type == CompressionType.STATIC_MESH) {
-            seek(0x8);
-            int dep = int32f();
-            int8();
-            byte[] data = bytes(dep - offset);
+        if (!this.isCompressed) return this.data;
+        if (this.type == ResourceType.INVALID) return null;
+        if (this.type == ResourceType.STATIC_MESH) {
+            seek(0xD);
+            byte[] data = bytes(this.dependencyOffset - this.offset);
             if (set)
-                this.setData(data);
+                setData(data);
             return data;
         }
-
-        switch (type) {
-            case LEGACY_TEXTURE:
-                seek(6);
+        
+        switch (this.method) {
+            case TEXTURE: {
+                if (this.type == ResourceType.GTF_TEXTURE) seek(30);
+                else seek(4);
                 break;
-            case GTF_TEXTURE:
-            case GXT_SIMPLE_TEXTURE:
-                seek(30);
-                break;
-            case GXT_EXTENDED_TEXTURE:
-                seek(50);
-                break;
-            case CUSTOM_COMPRESSION:
-                if (data[16] == 1) seek(19);
-                else seek(20);
-                break;
-            case CUSTOM_COMPRESSION_LEGACY:
-                if (revision <= 0x188) seek(14);
-                else seek(15);
-                break;
-            default:
-                return null;
-        }
-
-        short chunks = int16();
-
-        if (chunks == 0) {
-            int old = offset;
-            seek(8);
-            int tableOffset = int32f();
-            seek(old);
-            byte[] data = bytes(tableOffset - offset);
-            if (set) setData(data);
-            return data;
-        }
-
-        int[] compressed = new int[chunks];
-        int[] decompressed = new int[chunks];
-        int decompressedSize = 0;
-        for (int i = 0; i < chunks; i++) {
-            compressed[i] = int16LE();
-            decompressed[i] = int16LE();
-            decompressedSize += decompressed[i];
-        }
-        ByteArrayOutputStream stream = new ByteArrayOutputStream(decompressedSize);
-        try {
-            for (int j = 0; j < chunks; j++) {
-                if (compressed[j] == decompressed[j]) {
-                    stream.write(bytes(compressed[j]));
-                    continue;
-                }
-                Inflater decompressor = new Inflater();
-                decompressor.setInput(bytes(compressed[j]));
-                byte[] chunk = new byte[decompressed[j]];
-                decompressor.inflate(chunk);
-                decompressor.end();
-                stream.write(chunk);
             }
-        } catch (IOException | java.util.zip.DataFormatException ex) {
-            Logger.getLogger(Data.class.getName()).log(Level.SEVERE, (String) null, ex);
-            setData(null);
-            return null;
+            case GXT_SIMPLE: seek(30); break;
+            case GXT_EXTENDED: seek(50); break;
+            case BINARY: {
+                seek(12);
+                if (this.revision.head > 0x26e)
+                    forward(5);
+                if (this.revision.head > 0x188)
+                    forward(1);
+                break;
+            }
         }
-        byte[] data = stream.toByteArray();
-        if (set) setData(stream.toByteArray());
+        
+        byte[] data = Compressor.decompress(this);
+        if (set) {
+            this.isCompressed = false;
+            setData(data);
+        }
+        
         return data;
     }
 }

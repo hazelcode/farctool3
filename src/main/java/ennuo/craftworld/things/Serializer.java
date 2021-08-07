@@ -6,7 +6,7 @@ import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
 import ennuo.craftworld.resources.TranslationTable;
 import ennuo.craftworld.resources.enums.ItemSubType;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.enums.ToolType;
 import ennuo.craftworld.resources.structs.Copyright;
 import ennuo.craftworld.resources.structs.EyetoyData;
@@ -96,7 +96,7 @@ public class Serializer {
         output.varint(metadata.highlightSound);
         output.varint(metadata.colour);
         
-        output.varint(metadata.type.getValue(output.revision));
+        output.varint(metadata.type.getValue(output.revision.head));
         output.varint(metadata.subType.value);
         
         output.varint(metadata.titleKey);
@@ -164,14 +164,14 @@ public class Serializer {
         for (int i = 0; i < 4; ++i)
             output.int8(metadata.flags);
         
-        output.uint32f(metadata.type.getValue(output.revision));
+        output.uint32f(metadata.type.getValue(output.revision.head));
         output.uint32f(metadata.subType.value);
         output.uint32f(metadata.toolType.value);
         
         metadata.creator.serialize(output);
         
         output.pad(0x3);
-        if (output.revision >= 0x33a) output.pad(0x1);
+        if (output.revision.head >= 0x33a) output.pad(0x1);
         
         output.varint(metadata.titleKey);
         output.varint(metadata.descriptionKey);
@@ -200,7 +200,7 @@ public class Serializer {
         
         if (!item) return;
         
-        if (output.revision >= 0x272) {
+        if (output.revision.head >= 0x272) {
             output.uint32(metadata.location);
             output.uint32(metadata.category);
         } else {
@@ -233,7 +233,7 @@ public class Serializer {
         for (int i = 0; i < 4; ++i)
             metadata.flags = input.int8();
         
-        metadata.type = ItemType.getValue(input.uint32f(), input.revision);
+        metadata.type = ItemType.getValue(input.uint32f(), input.revision.head);
         metadata.subType = ItemSubType.getValue(input.uint32f(), metadata.type);
         metadata.toolType = ToolType.getValue((byte) input.int32f());
         
@@ -241,9 +241,9 @@ public class Serializer {
         
         input.forward(0x3);
         
-        if (input.revision >= 0x33a) input.forward(0x1);
+        if (input.revision.head >= 0x33a) input.forward(0x1);
         
-        if (input.revision >= 0x272) {
+        if (input.revision.head >= 0x272) {
             metadata.titleKey = input.varint();
             metadata.descriptionKey = input.varint();   
         } else
@@ -268,7 +268,7 @@ public class Serializer {
                 metadata.creationHistory[i] = input.str16();
         }
         
-        metadata.icon = input.resource(RType.TEXTURE, true);
+        metadata.icon = input.resource(ResourceType.TEXTURE, true);
         
         if (checkIfSerialized())
             metadata.photoData = new PhotoData(input);
@@ -278,7 +278,7 @@ public class Serializer {
         
         if (!isItem) return metadata;
         
-        if (input.revision >= 0x272) {
+        if (input.revision.head >= 0x272) {
             metadata.location = input.uint32();
             metadata.category = input.uint32();
         } else {
@@ -302,11 +302,11 @@ public class Serializer {
         
         input.forward(0x8);
         
-        metadata.type = ItemType.getValue(input.int32(), input.revision);
+        metadata.type = ItemType.getValue(input.int32(), input.revision.head);
         
         input.forward(0x8);
         
-        metadata.icon = input.resource(RType.TEXTURE, true);
+        metadata.icon = input.resource(ResourceType.TEXTURE, true);
         
         input.seek(input.length - 1);
         
@@ -335,11 +335,11 @@ public class Serializer {
         metadata.highlightSound = input.uint32();
         metadata.colour = input.uint32();
         
-        metadata.type = ItemType.getValue(input.uint32(), input.revision);
+        metadata.type = ItemType.getValue(input.uint32(), input.revision.head);
         
         metadata.subType = ItemSubType.getValue(input.uint32(), metadata.type);
         
-        System.out.println(String.format("InventoryItem has type = %d (%s), subtype = %d (%s)", metadata.type.getValue(input.revision), metadata.type.name(), metadata.subType.value, metadata.subType.name()));
+        System.out.println(String.format("InventoryItem has type = %d (%s), subtype = %d (%s)", metadata.type.getValue(input.revision.head), metadata.type.name(), metadata.subType.value, metadata.subType.name()));
         
         metadata.titleKey = input.uint32();
         metadata.descriptionKey = input.uint32();
@@ -370,7 +370,7 @@ public class Serializer {
             }
         } else metadata.creationHistory = null;
         
-        metadata.icon = input.resource(RType.TEXTURE, true);
+        metadata.icon = input.resource(ResourceType.TEXTURE, true);
         
         if (metadata.icon != null) {
             if (metadata.icon.GUID != -1)
@@ -556,7 +556,7 @@ public class Serializer {
         
         gameRevision = input.int32(); 
         item.revision = gameRevision; 
-        input.revision = gameRevision;
+        input.revision.head = gameRevision;
         
         int bufferSize = input.int32();
         

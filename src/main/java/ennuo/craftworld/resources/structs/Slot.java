@@ -1,6 +1,5 @@
 package ennuo.craftworld.resources.structs;
 
-import ennuo.craftworld.resources.structs.Collectable;
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Images;
 import ennuo.craftworld.memory.Output;
@@ -8,16 +7,12 @@ import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.data.Vector4f;
 import ennuo.craftworld.resources.Texture;
-import ennuo.craftworld.resources.enums.ContentsType;
 import ennuo.craftworld.resources.enums.GameMode;
 import ennuo.craftworld.resources.enums.LevelType;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.enums.SlotType;
-import ennuo.craftworld.resources.structs.Label;
-import ennuo.craftworld.resources.structs.SlotID;
 import ennuo.craftworld.types.FileEntry;
 import ennuo.toolkit.utilities.Globals;
-import ennuo.toolkit.windows.Toolkit;
 import java.awt.image.BufferedImage;
 import javax.swing.ImageIcon;
 
@@ -30,7 +25,7 @@ public class Slot {
     
     public ResourcePtr root;
     public ResourcePtr adventure;
-    public ResourcePtr icon = new ResourcePtr(10682, RType.TEXTURE);
+    public ResourcePtr icon = new ResourcePtr(10682, ResourceType.TEXTURE);
     
     public ImageIcon renderedIcon;
     
@@ -51,7 +46,7 @@ public class Slot {
     public boolean copyable = false;
     
     public long backgroundGUID = 405678;
-    public ResourcePtr planetDecorations = new ResourcePtr(250423, RType.LEVEL);
+    public ResourcePtr planetDecorations = new ResourcePtr(250423, ResourceType.LEVEL);
     
     public LevelType developerLevelType = LevelType.COOPERATIVE;
     
@@ -118,11 +113,11 @@ public class Slot {
             if (texture != null) image = texture.getImage();
         }
             
-        int revision = entry.revision;
+        int revision = entry.revision.head;
         if (root != null) {
             byte[] root = Globals.extractFile(this.root);
             if (root != null)
-                revision = new Resource(root).revision;
+                revision = new Resource(root).revision.head;
         }    
             
         if (slot.type.equals(SlotType.DEVELOPER_GROUP) || slot.type.equals(SlotType.DLC_PACK))
@@ -138,18 +133,18 @@ public class Slot {
         if (parseGroup)
             group = new SlotID(data);
         
-        root = data.resource(RType.LEVEL, true);
+        root = data.resource(ResourceType.LEVEL, true);
         
         if (root != null)
             System.out.println("slot has root = " + root.toString());
         
-        if (data.revision > 0x010503EF) {
-            adventure = data.resource(RType.ADVENTURE_CREATE_PROFILE, true);
+        if (data.revision.head > 0x010503EF) {
+            adventure = data.resource(ResourceType.ADVENTURE_CREATE_PROFILE, true);
             if (adventure != null)
                 System.out.println("slot has adventure = " + adventure.toString());
         }
         
-        icon = data.resource(RType.TEXTURE, true);
+        icon = data.resource(ResourceType.TEXTURE, true);
         
         if (icon != null)
             System.out.println("slot has icon = " + icon.toString());
@@ -187,19 +182,19 @@ public class Slot {
         
         backgroundGUID = data.uint32();
         
-        if (data.revision > 0x2c3)
-            planetDecorations = data.resource(RType.PLAN, true);
+        if (data.revision.head > 0x2c3)
+            planetDecorations = data.resource(ResourceType.PLAN, true);
         
         developerLevelType = LevelType.getValue(data.int32());
         
-        if (data.revision <= 0x33a)
+        if (data.revision.head <= 0x33a)
             gameProgressionState = data.int32();
         
-        if (data.revision <= 0x2c3) return;
+        if (data.revision.head <= 0x2c3) return;
         
         System.out.println(String.format("Slot has levelType = %s", developerLevelType.name()));
         
-        if (data.revision > 0x33a) {
+        if (data.revision.head > 0x33a) {
             int labelCount = data.int8();
             authorLabels = new Label[labelCount];
             for (int i = 0; i < labelCount; ++i)
@@ -220,28 +215,28 @@ public class Slot {
                 containedCollectables[i] = new Collectable(data);
         }
         
-        if (data.revision <= 0x33a) return;
+        if (data.revision.head <= 0x33a) return;
         
         isSubLevel = data.bool();
         
-        if (data.revision <= 0x3af) return;
+        if (data.revision.head <= 0x3af) return;
         
         System.out.println("Slot is sublevel? " + isSubLevel);
         
         minPlayers = data.int8();
         maxPlayers = data.int8();
         
-        if (data.revision >= 0x021803F9)
+        if (data.revision.head >= 0x021803F9)
             enforceMinMaxPlayers = data.bool();
         
         System.out.println(String.format("Slot has minPlayers = %d, maxPlayers = %d", minPlayers, maxPlayers));
         
-        if (data.revision >= 0x3b7)
+        if (data.revision.head >= 0x3b7)
             moveRecommended = data.bool();
         
         System.out.println("Slot has move support? " + moveRecommended);
               
-        if (data.revision >= 0x3e6) 
+        if (data.revision.head >= 0x3e6) 
             crossCompatible = data.bool();
         
         System.out.println("Slot is cross-compatible? " + crossCompatible);
@@ -250,7 +245,7 @@ public class Slot {
         
         livesOverride = data.int8();
         
-        if (data.revision == 0x3e2) {
+        if (data.revision.head == 0x3e2) {
             acingEnabled = data.bool();
             customRewardEnabled = data.u32a();
             
@@ -282,11 +277,11 @@ public class Slot {
             for (int i = 0; i < subLevelCount; ++i)
                 subLevels[i] = new SlotID(data);
             
-            slotList = data.resource(RType.SLOT_LIST);
+            slotList = data.resource(ResourceType.SLOT_LIST);
             vitaRevision = data.int32();
         }
         
-        if (data.revision <= 0x3f8) return;
+        if (data.revision.head <= 0x3f8) return;
         
         gameMode = GameMode.getValue(data.int8());
         
@@ -294,20 +289,20 @@ public class Slot {
         
         isGameKit = data.bool();
         
-        if (data.revision <= 0x010503EF) return;
+        if (data.revision.head <= 0x010503EF) return;
         
         entranceName = data.str16();
         
         originalSlotID = new SlotID(data);
         
-        if (data.revision <= 0x014703ef) return;
+        if (data.revision.head <= 0x014703ef) return;
         
         customBadgeSize = data.int8();
         
         System.out.println("Slot has customBadgeSize = " + customBadgeSize);
         
         data.str8(); 
-        if (data.revision > 0x01ae03f9)
+        if (data.revision.head > 0x01ae03f9)
             data.str8();
     }
     
@@ -319,7 +314,7 @@ public class Slot {
             group.serialize(output);
         output.resource(root, true);
         
-        if (output.revision > 0x010503EF)
+        if (output.revision.head > 0x010503EF)
             output.resource(adventure, true);
         
         output.resource(icon, true);
@@ -346,18 +341,18 @@ public class Slot {
         
         output.uint32(backgroundGUID);
         
-        if (output.revision > 0x2c3)
+        if (output.revision.head > 0x2c3)
             output.resource(planetDecorations, true);
         
         output.int32(developerLevelType.value);
         
-        if (output.revision <= 0x33a)
+        if (output.revision.head <= 0x33a)
             output.int32(gameProgressionState);
         
-        if (output.revision <= 0x2c3) return;
+        if (output.revision.head <= 0x2c3) return;
         
         
-        if (output.revision > 0x33a) {
+        if (output.revision.head > 0x33a) {
             output.int32(authorLabels.length);
             for (Label label : authorLabels)
                 label.serialize(output);   
@@ -371,29 +366,29 @@ public class Slot {
         for (Collectable c : containedCollectables)
             c.serialize(output);
         
-        if (output.revision <= 0x33a) return;
+        if (output.revision.head <= 0x33a) return;
         
         output.bool(isSubLevel);
         
-        if (output.revision <= 0x395) return;
+        if (output.revision.head <= 0x395) return;
         
         output.int8(minPlayers);
         output.int8(maxPlayers);
         
-        if (output.revision >= 0x021803F9)
+        if (output.revision.head >= 0x021803F9)
             output.bool(enforceMinMaxPlayers);
         
-        if (output.revision >= 0x3b7)
+        if (output.revision.head >= 0x3b7)
             output.bool(moveRecommended);
         
-        if (output.revision >= 0x3e6) 
+        if (output.revision.head >= 0x3e6) 
             output.bool(crossCompatible);
         
         output.bool(showOnPlanet);
         
         output.int8(livesOverride);
         
-        if (output.revision == 0x3e2) {
+        if (output.revision.head == 0x3e2) {
             output.bool(acingEnabled);
             output.u32a(customRewardEnabled);
             
@@ -425,24 +420,24 @@ public class Slot {
             output.int32(vitaRevision);
         }
         
-        if (output.revision <= 0x3f8) return;
+        if (output.revision.head <= 0x3f8) return;
         
         output.int8(gameMode.value);
         
         output.bool(isGameKit);
         
-        if (output.revision <= 0x010503EF) return;
+        if (output.revision.head <= 0x010503EF) return;
         
         output.str16(entranceName);
         
         originalSlotID.serialize(output);
         
-        if (output.revision <= 0x014703ef) return;
+        if (output.revision.head <= 0x014703ef) return;
         
         output.int8(customBadgeSize);
         
         output.str8("");
-        if (output.revision > 0x01ae03f9)
+        if (output.revision.head > 0x01ae03f9)
             output.str8("");
     }
 }

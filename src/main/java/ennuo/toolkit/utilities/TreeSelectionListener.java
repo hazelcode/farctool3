@@ -8,6 +8,7 @@ import ennuo.craftworld.resources.GfxMaterial;
 import ennuo.craftworld.resources.Mesh;
 import ennuo.craftworld.resources.Pack;
 import ennuo.craftworld.resources.Texture;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.swing.FileModel;
 import ennuo.craftworld.swing.FileNode;
@@ -41,7 +42,7 @@ public class TreeSelectionListener {
             return;
         }
 
-        toolkit.resourceService.submit(() -> {
+        //toolkit.resourceService.submit(() -> {
             if (!Globals.canExtract()) return;
 
             byte[] entryBuffer = null;
@@ -61,7 +62,13 @@ public class TreeSelectionListener {
             if (entry.dependencyModel == null || entry.dependencies == null || entry.missingDependencies) {
                 FileModel model = new FileModel(new FileNode("x", null, null));
                 Resource resource = new Resource(entryBuffer);
-                boolean recursive = !(resource.magic.equals("PCKb") || resource.magic.equals("SLTb") || resource.magic.equals("LVLb") || resource.magic.equals("ADCb") || resource.magic.equals("PALb"));
+                boolean recursive = !(
+                        resource.type.equals(ResourceType.PACKS) || 
+                        resource.type.equals(ResourceType.SLOT_LIST) || 
+                        resource.type.equals(ResourceType.LEVEL) || 
+                        resource.type.equals(ResourceType.ADVENTURE_CREATE_PROFILE) || 
+                        resource.type.equals(ResourceType.PALETTE)
+                );
                 entry.missingDependencies = resource.getDependencies(entry, recursive) != 0;
                 entry.dependencies = resource.dependencies;
                 toolkit.generateDependencyTree(entry, model);
@@ -93,7 +100,7 @@ public class TreeSelectionListener {
                 case "slt":
                     if (entry.slots == null) {
                         Resource res = new Resource(entryBuffer);
-                        if (res.magic.equals("SLTt")) return;
+                        if (res.type.equals(ResourceType.SLOT_LIST)) return;
                         res.decompress(true);
                         entry.revision = res.revision;
 
@@ -185,6 +192,6 @@ public class TreeSelectionListener {
                     break;
             }
             toolkit.preview.setDividerLocation(325);
-        });
+       // });
     }
 }

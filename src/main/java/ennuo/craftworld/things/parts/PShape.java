@@ -1,16 +1,16 @@
 package ennuo.craftworld.things.parts;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.data.Vector3f;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.structs.Polygon;
 import ennuo.craftworld.things.Part;
 import ennuo.craftworld.things.Serializer;
 
 public class PShape implements Part {
     public Polygon polygon;
-    public ResourcePtr material = new ResourcePtr(null, RType.MATERIAL);
-    public ResourcePtr oldMaterial = new ResourcePtr(null, RType.MATERIAL);
+    public ResourcePtr material = new ResourcePtr(null, ResourceType.MATERIAL);
+    public ResourcePtr oldMaterial = new ResourcePtr(null, ResourceType.MATERIAL);
     public float thickness = 90;
     public float massDepth = 1;
     
@@ -82,8 +82,8 @@ public class PShape implements Part {
     public void Deserialize(Serializer serializer) {
        polygon = new Polygon(serializer.input, serializer.partsRevision);
        
-       material = serializer.input.resource(RType.MATERIAL);
-       oldMaterial = serializer.input.resource(RType.MATERIAL);
+       material = serializer.input.resource(ResourceType.MATERIAL);
+       oldMaterial = serializer.input.resource(ResourceType.MATERIAL);
        
        if (serializer.partsRevision >= 0x4e)
         thickness = serializer.input.float32();

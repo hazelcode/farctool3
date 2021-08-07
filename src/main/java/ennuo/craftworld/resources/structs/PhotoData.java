@@ -2,9 +2,8 @@ package ennuo.craftworld.resources.structs;
 
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
-import java.util.Arrays;
 
 public class PhotoData {
     public static int MAX_SIZE = 0x69 + PhotoMetadata.MAX_SIZE + (PhotoUser.MAX_SIZE * 4);
@@ -16,18 +15,18 @@ public class PhotoData {
     
     public PhotoData() {}
     public PhotoData(Data data) {
-        icon = data.resource(RType.TEXTURE, true);
-        sticker = data.resource(RType.TEXTURE, true);
+        icon = data.resource(ResourceType.TEXTURE, true);
+        sticker = data.resource(ResourceType.TEXTURE, true);
         photoMetadata = new PhotoMetadata(data);
-        if (data.revision > 0x395)
-            painting = data.resource(RType.PAINTING, true);
+        if (data.revision.head > 0x395)
+            painting = data.resource(ResourceType.PAINTING, true);
     }
     
     public void serialize(Output output) {
         output.resource(icon, true);
         output.resource(sticker, true);
         photoMetadata.serialize(output);
-        if (output.revision > 0x395)
+        if (output.revision.head > 0x395)
             output.resource(painting, true);
     }
     

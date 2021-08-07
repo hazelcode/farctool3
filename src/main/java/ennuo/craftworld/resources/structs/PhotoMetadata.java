@@ -2,14 +2,14 @@ package ennuo.craftworld.resources.structs;
 
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 import java.util.Date;
 
 public class PhotoMetadata {
     public static int MAX_SIZE = 0x22c + SlotID.MAX_SIZE + (4 * PhotoUser.MAX_SIZE);
     
-    public ResourcePtr photo = new ResourcePtr(0, RType.TEXTURE);
+    public ResourcePtr photo = new ResourcePtr(0, ResourceType.TEXTURE);
     public SlotID level = new SlotID();
     public String levelName;
     public byte[] levelHash = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -18,7 +18,7 @@ public class PhotoMetadata {
     
     public PhotoMetadata() {}
     public PhotoMetadata(Data data) {
-        photo = data.resource(RType.TEXTURE, true);
+        photo = data.resource(ResourceType.TEXTURE, true);
         level = new SlotID(data);
         levelName = data.str16();
         levelHash = data.bytes(0x14);

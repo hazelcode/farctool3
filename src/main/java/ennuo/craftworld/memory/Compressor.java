@@ -1,13 +1,35 @@
 package ennuo.craftworld.memory;
 
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
+import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Revision;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 public class Compressor {
+    
+    public static byte[] decompressData(byte[] data, int size) {
+        try {
+            Inflater inflater = new Inflater();
+            inflater.setInput(data);
+            byte[] chunk = new byte[size];
+            inflater.inflate(chunk);
+            inflater.end();
+            return chunk;
+        } catch (DataFormatException ex) {
+            Logger.getLogger(Data.class.getName()).log(Level.SEVERE, (String) null, ex);
+            return null;
+        }
+    }
 
-    public static byte[] CompressData(byte[] data) {
+    public static byte[] compressData(byte[] data) {
         try {
             Deflater deflater = new Deflater();
             ByteArrayOutputStream stream = new ByteArrayOutputStream(data.length);
@@ -27,8 +49,41 @@ public class Compressor {
             return null;
         }
     }
+    
+    public static byte[] decompress(Resource data) {
+        data.int16(); // Some kind of flag? Irrelevant, moving past! //
+        
+        short chunks = data.int16();
+        
+        if (chunks == 0) return data.bytes(data.dependencyOffset - data.offset);
+        
+        int[] compressed = new int[chunks];
+        int[] decompressed = new int[chunks];
+        int decompressedSize = 0;
+        System.out.println(String.format("Current compressed resource has %d streams", chunks));
+        for (int i = 0; i < chunks; ++i) {
+            compressed[i] = data.uint16();
+            decompressed[i] = data.uint16();
+            System.out.println(String.format("[%d] %d:%d", i, compressed[i], decompressed[i]));
+            decompressedSize += decompressed[i];
+        }
+        
+        try {
+            ByteArrayOutputStream stream = new ByteArrayOutputStream(decompressedSize);
+            for (int i = 0; i < chunks; ++i) {
+                if (compressed[i] == decompressed[i])
+                    stream.write(data.bytes(compressed[i]));
+                else
+                    stream.write(decompressData(data.bytes(compressed[i]), decompressed[i]));
+            }
+            return stream.toByteArray();
+        } catch (IOException ex) {
+            Logger.getLogger(Data.class.getName()).log(Level.SEVERE, (String) null, ex);
+            return null;
+        }
+    }
 
-    public static byte[] CompressRaw(byte[] data) {
+    public static byte[] compressRaw(byte[] data) {
         if (data == null) return new byte[] {};
         byte[][] chunks = Bytes.Split(data, 0x8000);
 
@@ -38,13 +93,14 @@ public class Compressor {
         byte[][] zlibStreams = new byte[chunks.length][];
         
         for (int i = 0; i < chunks.length; ++i) {
-            byte[] compressed = CompressData(chunks[i]);
+            byte[] compressed = compressData(chunks[i]);
             zlibStreams[i] = compressed;
             compressedSize[i] = (short) compressed.length;
             uncompressedSize[i] = (short) chunks[i].length;
         }
 
-        Output output = new Output(2 + (chunks.length * 4), 0);
+        Output output = new Output(4 + (chunks.length * 4), 0);
+        output.int16((short) 1);
         output.int16((short) zlibStreams.length);
 
         for (int i = 0; i < zlibStreams.length; ++i) {
@@ -58,46 +114,51 @@ public class Compressor {
         });
     }
 
-    public static byte[] CompressStaticMesh(byte[] data, int revision, ResourcePtr[] dependencies) {
+    public static byte[] compressStaticMesh(byte[] data, int revision, ResourcePtr[] dependencies) {
         Output output = new Output(0xD);
         output.string("SMHb");
         output.int32f(revision);
         output.int32f(0xD + data.length);
         output.int8(0);
 
-        return Bytes.Combine(output.buffer, data, Dependinate(dependencies));
+        return Bytes.Combine(output.buffer, data, dependinate(dependencies));
 
     }
 
-    public static byte[] Compress(byte[] data, String magic, int revision, ResourcePtr[] dependencies) {
-        if (magic.equals("SMHb")) return CompressStaticMesh(data, revision, dependencies);
-        byte[] compressed = CompressRaw(data);
-
-        boolean legacy = revision < 0x272;
-        int size = 40;
-        byte[] flags = (legacy) ? new byte[] { 1, 0, 1 } : new byte[] { 0, 0, 0, 0, 7, 1, 0, 1 };
-        if (revision <= 0x188) 
-            flags = new byte[] { 0, 1 };
-        if (revision <= 0x272 && revision > 0x26e)
-            flags = new byte[] { 0x4c, 0x44, 0x00, 0x17, 7, 1, 0, 1 };
-        else if (revision == 0x3e2)
-            flags = new byte[] { 0x44, 0x31, 0x00, (byte) 0x87, 0x07, 0x01, 0x01, 0x01 };
-        Output output = new Output(size);
-        output.string(magic);
-        output.int32(revision);
-        output.int32(output.offset + 4 + compressed.length + flags.length);
-        output.bytes(flags);
+    public static byte[] compress(Resource resource) {
+        return Compressor.compress(resource.data, resource.type, resource.method, resource.revision, resource.resources);
+    }
+    
+    public static byte[] compress(byte[] data, ResourceType type, SerializationType method, Revision revision, ResourcePtr[] dependencies) {
+        if (type == ResourceType.STATIC_MESH) return compressStaticMesh(data, revision.head, dependencies);
+        
+        byte[] compressed = compressRaw(data);
+        
+        byte compressionFlags = 0x7;
+        Output output = new Output(18);
+        output.string(type.header);
+        output.string(method.value);
+        output.int32(revision.head);
+        output.int32(output.offset + 4 + compressed.length + ((revision.head > 0x26e) ? 6 : ((revision.head > 0x188) ? 1 : 0)));
+        
+        if (revision.head > 0x26e) {
+            output.int32(revision.branch);
+            output.int8(compressionFlags);
+        }
+        if (revision.head > 0x188)
+            output.int8(1);
+        
         output.shrinkToFit();
         return Bytes.Combine(new byte[][] {
-            output.buffer, compressed, Dependinate(dependencies)
+            output.buffer, compressed, dependinate(dependencies)
         });
     }
 
-    private static byte[] Dependinate(ResourcePtr[] resources) {
+    private static byte[] dependinate(ResourcePtr[] resources) {
         Output output = new Output(0x1C * resources.length + 4);
 
         output.int32(resources.length);
-        for (ResourcePtr resource: resources) {
+        for (ResourcePtr resource : resources) {
             output.resource(resource, true);
             output.int32(resource.type.value);
         }

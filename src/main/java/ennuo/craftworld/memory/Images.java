@@ -33,7 +33,7 @@ public class Images {
         if (DDS == null)
             return null;
 
-        DDS = Compressor.CompressRaw(DDS);
+        DDS = Compressor.compressRaw(DDS);
 
         if (DDS == null) {
             System.err.println("Failed to compress DDS!");
@@ -105,7 +105,7 @@ public class Images {
             return null;
         }
 
-        DDS = Compressor.CompressRaw(DDS);
+        DDS = Compressor.compressRaw(DDS);
 
         if (DDS == null) {
             System.err.println("Failed to compress DDS!");

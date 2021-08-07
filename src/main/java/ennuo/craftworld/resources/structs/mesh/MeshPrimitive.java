@@ -2,8 +2,8 @@ package ennuo.craftworld.resources.structs.mesh;
 
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.Output;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 
 public class MeshPrimitive {
     public static int MAX_SIZE = 0x4B;
@@ -17,9 +17,9 @@ public class MeshPrimitive {
     public int region;
     
     public MeshPrimitive(Data data) {
-        boolean isBit = data.revision < 0x230;
-        material = data.resource(RType.GFXMATERIAL, isBit);
-        textureAlternatives = data.resource(RType.TEXTURE_LIST, isBit);
+        boolean isBit = data.revision.head < 0x230;
+        material = data.resource(ResourceType.GFX_MATERIAL, isBit);
+        textureAlternatives = data.resource(ResourceType.TEXTURE_LIST, isBit);
         minVert = data.int32();
         maxVert = data.int32();
         firstIndex = data.int32();
@@ -36,7 +36,7 @@ public class MeshPrimitive {
     }
     
     public void serialize(Output output) {
-        boolean isBit = output.revision < 0x230;
+        boolean isBit = output.revision.head < 0x230;
         output.resource(material, isBit);
         output.resource(textureAlternatives, isBit);
         output.int32(minVert); output.int32(maxVert);

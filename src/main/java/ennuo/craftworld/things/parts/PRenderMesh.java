@@ -2,15 +2,15 @@ package ennuo.craftworld.things.parts;
 
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.data.Vector4f;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.things.Part;
 import ennuo.craftworld.things.Serializer;
 import ennuo.craftworld.things.ThingPtr;
 
 public class PRenderMesh implements Part {
-    public ResourcePtr mesh = new ResourcePtr(null, RType.MESH);
+    public ResourcePtr mesh = new ResourcePtr(null, ResourceType.MESH);
     public ThingPtr[] boneThings;
-    public ResourcePtr anim = new ResourcePtr(null, RType.ANIM);
+    public ResourcePtr anim = new ResourcePtr(null, ResourceType.ANIMATION);
     public float animPos = 0.0f, animSpeed = 0.0f;
     public boolean animLoop = false;
     public float loopStart = 0.0f, loopEnd = 1.0f;
@@ -35,11 +35,11 @@ public class PRenderMesh implements Part {
 
     @Override
     public void Deserialize(Serializer serializer) {
-        mesh = serializer.input.resource(RType.MESH);
+        mesh = serializer.input.resource(ResourceType.MESH);
         boneThings = new ThingPtr[serializer.input.int32()];
         for (int i = 0; i < boneThings.length; ++i)
             boneThings[i] = serializer.deserializeThing();
-        anim = serializer.input.resource(RType.ANIM);
+        anim = serializer.input.resource(ResourceType.ANIMATION);
         animPos = serializer.input.float32();
         animSpeed = serializer.input.float32();
         animLoop = serializer.input.bool();

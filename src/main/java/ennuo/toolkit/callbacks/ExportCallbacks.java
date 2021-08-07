@@ -7,7 +7,7 @@ import ennuo.craftworld.memory.Output;
 import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.resources.TranslationTable;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.resources.io.MeshIO;
 import ennuo.craftworld.resources.structs.Slot;
 import ennuo.craftworld.resources.structs.UserCreatedDetails;
@@ -129,11 +129,11 @@ public class ExportCallbacks {
                 metadata.userCreatedDetails = new UserCreatedDetails();
                 metadata.userCreatedDetails.title = name;
             }
-            metadata.resource = new ResourcePtr(Bytes.SHA1(compressed), RType.PLAN);
+            metadata.resource = new ResourcePtr(Bytes.SHA1(compressed), ResourceType.PLAN);
             mod.items.add(metadata);
         } else if (Globals.lastSelected.entry.path.toLowerCase().endsWith(".bin")) {
             Slot slot = new Slot();
-            slot.root = new ResourcePtr(Bytes.SHA1(compressed), RType.LEVEL);
+            slot.root = new ResourcePtr(Bytes.SHA1(compressed), ResourceType.LEVEL);
             slot.title = name;
             mod.slots.add(slot);
         }

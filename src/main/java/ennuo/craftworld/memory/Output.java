@@ -1,6 +1,7 @@
 package ennuo.craftworld.memory;
 
 import ennuo.craftworld.types.data.ResourcePtr;
+import ennuo.craftworld.types.data.Revision;
 import ennuo.craftworld.types.data.Vector2f;
 import ennuo.craftworld.types.data.Vector3f;
 import ennuo.craftworld.types.data.Vector4f;
@@ -14,21 +15,33 @@ public class Output {
     public static int ENCODED_REVISION = 0x271;
 
     public int offset = 0;
-    public int revision = 0x271;
+    public Revision revision = new Revision(0x271);
     public byte[] buffer;
 
-    public ArrayList < ResourcePtr > dependencies = new ArrayList < ResourcePtr > ();
+    public ArrayList <ResourcePtr> dependencies = new ArrayList <ResourcePtr>();
 
     public Output(int size) {
-        buffer = new byte[size];
+        this.buffer = new byte[size];
     }
-    public Output(int size, int rev) {
-        buffer = new byte[size];
-        revision = rev;
+    
+    public Output(int size, int revision) {
+        this.buffer = new byte[size];
+        this.revision.head = revision;
+    }
+    
+    public Output(int size, int revision, int branch) {
+        this.buffer = new byte[size];
+        this.revision.head = revision;
+        this.revision.branch = branch;
+    }
+    
+    public Output(int size, Revision revision) {
+        this.buffer = new byte[size];
+        this.revision = revision;
     }
     
     public boolean isEncoded() {
-        return this.revision > ENCODED_REVISION && !(this.revision >= 0x273 && this.revision <= 0x297);
+        return this.revision.head > ENCODED_REVISION && !(this.revision.head >= 0x273 && this.revision.head <= 0x297);
     }
 
     private boolean hasDependency(ResourcePtr res) {
@@ -195,14 +208,14 @@ public class Output {
     }
     public void resource(ResourcePtr res, boolean bit) {
         byte HASH = 1, GUID = 2;
-        if (revision <= 0x18B) {
+        if (revision.head <= 0x18B) {
             HASH = 2;
             GUID = 1;
         }
 
 
-        if (revision < 0x230) bit = true;
-        if (((revision >= 0x230 && revision <= 0x26e) || (this.revision >= 0x273 && this.revision <= 0x297)) && !bit) int8(0);
+        if (revision.head < 0x230) bit = true;
+        if (((revision.head >= 0x230 && revision.head <= 0x26e) || (this.revision.head >= 0x273 && this.revision.head <= 0x297)) && !bit) int8(0);
         if (bit) {
             if (res == null) int8(0);
             else if (res.hash != null) int8(HASH);

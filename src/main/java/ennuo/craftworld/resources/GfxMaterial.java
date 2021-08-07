@@ -1,19 +1,12 @@
 package ennuo.craftworld.resources;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Data;
-import ennuo.craftworld.memory.FileIO;
-import ennuo.craftworld.memory.Output;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.structs.gfxmaterial.Box;
 import ennuo.craftworld.resources.structs.gfxmaterial.ParameterAnimation;
 import ennuo.craftworld.resources.structs.gfxmaterial.Wire;
-import ennuo.toolkit.callbacks.DebugCallbacks;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class GfxMaterial {
     public int flags;
@@ -44,7 +37,7 @@ public class GfxMaterial {
 
         alphaTestLevel = data.float32();
         alphaLayer = data.int8();
-        if (data.revision > 0x272)
+        if (data.revision.head > 0x272)
             alphaMode = data.int8();
         shadowCastMode = data.int8();
 
@@ -53,7 +46,7 @@ public class GfxMaterial {
         reflectionBlur = data.float32();
         refractiveIndex = data.float32();
 
-        if (data.revision > 0x3f8) {
+        if (data.revision.head > 0x3f8) {
             refractiveFresnelFalloffPower = data.float32();
             refractiveFresnelMultiplier = data.float32();
             refractiveFresnelOffset = data.float32();
@@ -81,7 +74,7 @@ public class GfxMaterial {
 
         textures = new ResourcePtr[8];
         for (int i = 0; i < 8; ++i) {
-            textures[i] = data.resource(RType.TEXTURE);
+            textures[i] = data.resource(ResourceType.TEXTURE);
             String str;
             if (textures[i] != null) str = textures[i].toString();
             else str = "null";

@@ -6,6 +6,7 @@ import ennuo.craftworld.memory.Output;
 import ennuo.craftworld.types.Resource;
 import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.memory.Strings;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.swing.FileData;
 import ennuo.craftworld.swing.FileModel;
 import ennuo.craftworld.swing.FileNode;
@@ -308,7 +309,7 @@ public class DatabaseCallbacks {
         byte[] data = Globals.extractFile(entry.GUID);
         if (data != null) {
             Resource resource = new Resource(data);
-            if (resource.magic.equals("PLNb")) {
+            if (resource.type == ResourceType.PLAN) {
                 resource.getDependencies(entry);
                 resource.removePlanDescriptors(entry.GUID, true);
                 Globals.addFile(resource.data);

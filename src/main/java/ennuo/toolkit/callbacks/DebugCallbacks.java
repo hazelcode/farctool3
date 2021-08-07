@@ -23,7 +23,8 @@ import ennuo.craftworld.types.data.ResourcePtr;
 import ennuo.craftworld.types.data.Vector3f;
 import ennuo.craftworld.resources.enums.Crater;
 import ennuo.craftworld.resources.enums.ItemType;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import ennuo.craftworld.resources.enums.SlotType;
 import ennuo.craftworld.resources.structs.ProfileItem;
 import ennuo.craftworld.resources.structs.Slot;
@@ -477,13 +478,13 @@ public class DebugCallbacks {
                 Resource res = new Resource(data);
                 res.getDependencies(Globals.findEntry(slot.root), false);
                 byte[] decompressed = res.decompress();
-                byte[] compressed = Compressor.Compress(decompressed, "LVLb", res.revision, res.resources);
+                byte[] compressed = Compressor.compress(decompressed, ResourceType.LEVEL, SerializationType.BINARY, res.revision, res.resources);
                 
                 profile.add(compressed, false);
                 
                 slot.title = slot.translationKey;
                 
-                slot.root = new ResourcePtr(Bytes.SHA1(compressed), RType.LEVEL);
+                slot.root = new ResourcePtr(Bytes.SHA1(compressed), ResourceType.LEVEL);
             }
         }
     }
@@ -494,7 +495,7 @@ public class DebugCallbacks {
         BigProfile profile = (BigProfile) Toolkit.instance.getCurrentDB();
         
         Data res = new Data(FileIO.read("C:/Users/Aidan/Desktop/lbp2storymode.slt"));
-        res.revision = 0x3e2;
+        res.revision.head = 0x3e2;
         
         int count = res.int32();
         Slot[] slots = new Slot[count];
@@ -569,7 +570,7 @@ public class DebugCallbacks {
                 InventoryItem item = serializer.DeserializeItem();
 
                 if (item != null && item.metadata != null) {
-                    item.metadata.resource = new ResourcePtr(entry.hash, RType.PLAN);
+                    item.metadata.resource = new ResourcePtr(entry.hash, ResourceType.PLAN);
                     mod.items.add(item.metadata);
                 }
             }
@@ -600,7 +601,7 @@ public class DebugCallbacks {
                     resource.replaceDependency(i, newRes, false);
                 }
 
-                mod.replace(entry, Compressor.Compress(resource.data, resource.magic, resource.revision, resource.resources));
+                mod.replace(entry, Compressor.compress(resource.data, resource.type, resource.method, resource.revision, resource.resources));
             }
         }
     }
@@ -633,16 +634,16 @@ public class DebugCallbacks {
                 metadata.userCreatedDetails = new UserCreatedDetails();
                 metadata.userCreatedDetails.title = new File(entry.path).getName();
                 metadata.userCreatedDetails.description = entry.path;
-                metadata.icon = new ResourcePtr(68376, RType.TEXTURE);
+                metadata.icon = new ResourcePtr(68376, ResourceType.TEXTURE);
                 
                 metadata.translatedCategory = "Emitted Plans";
                 metadata.translatedLocation = "Emitted plans";
                 
-                metadata.resource = new ResourcePtr(entry.GUID, RType.PLAN);
+                metadata.resource = new ResourcePtr(entry.GUID, ResourceType.PLAN);
                 
                 metadata.type = ItemType.OBJECTS;
                 
-                profile.addItem(new ResourcePtr(entry.GUID, RType.PLAN), metadata);
+                profile.addItem(new ResourcePtr(entry.GUID, ResourceType.PLAN), metadata);
                
             }
         }

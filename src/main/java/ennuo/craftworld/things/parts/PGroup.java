@@ -1,7 +1,7 @@
 package ennuo.craftworld.things.parts;
 
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.data.ResourcePtr;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.structs.Copyright;
 import ennuo.craftworld.things.Part;
 import ennuo.craftworld.things.Serializer;
@@ -9,7 +9,7 @@ import ennuo.craftworld.things.ThingPtr;
 
 public class PGroup implements Part {
     public Copyright copyright;
-    public ResourcePtr planDescriptor = new ResourcePtr(null, RType.PLAN);
+    public ResourcePtr planDescriptor = new ResourcePtr(null, ResourceType.PLAN);
     public boolean editable = false;
     public ThingPtr emitter = null;
     public int lifetime = 0;
@@ -25,7 +25,7 @@ public class PGroup implements Part {
     @Override
     public void Deserialize(Serializer serializer) {
         copyright = new Copyright(serializer.input);
-        planDescriptor = serializer.input.resource(RType.PLAN, true);
+        planDescriptor = serializer.input.resource(ResourceType.PLAN, true);
         if (serializer.partsRevision < 0x5e) editable = serializer.input.bool();
         emitter = serializer.deserializeThing();
         lifetime = serializer.input.int32();

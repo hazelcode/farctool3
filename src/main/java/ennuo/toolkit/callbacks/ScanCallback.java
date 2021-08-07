@@ -4,8 +4,7 @@ import ennuo.craftworld.memory.Bytes;
 import ennuo.craftworld.memory.Data;
 import ennuo.craftworld.memory.FileIO;
 import ennuo.craftworld.resources.Mesh;
-import ennuo.craftworld.resources.enums.Magic;
-import ennuo.craftworld.resources.enums.RType;
+import ennuo.craftworld.resources.enums.ResourceType;
 import ennuo.craftworld.types.FileArchive;
 import ennuo.craftworld.types.FileDB;
 import ennuo.craftworld.types.FileEntry;
@@ -63,22 +62,20 @@ public class ScanCallback {
         String[] headers = new String[60];
         Byte[] chars = new Byte[60];
         int m = 0;
-        for (Magic magic: Magic.values()) {
-            headers[m] = magic.value.substring(0, 3);
-            chars[m] = (byte) magic.value.charAt(0);
+        for (ResourceType type: ResourceType.values()) {
+            if (type.header != null) {
+                headers[m] = type.header.substring(0, 3);
+                chars[m] = (byte) type.header.charAt(0);   
+            }
             m++;
         }
-        headers[56] = "TEX";
-        chars[56] = (byte)
-        "T".charAt(0);
-        headers[57] = "FSB";
-        chars[57] = (byte)
-        "F".charAt(0);
-        headers[58] = "BIK";
+        
+        headers[58] = "FSB";
         chars[58] = (byte)
+        "F".charAt(0);
+        headers[59] = "BIK";
+        chars[59] = (byte)
         "B".charAt(0);
-        headers[59] = "GTF";
-        chars[59] = (byte) " ".charAt(0);
         
         Set < String > HEADERS = new HashSet<String> (Arrays.asList(headers));
         Set < Byte > VALUES = new HashSet<Byte> (Arrays.asList(chars));
@@ -180,7 +177,7 @@ public class ScanCallback {
                                 data.forward(dependencyOffset - 12);
                                 int count = data.int32f();
                                 for (int j = 0; j < count; ++j) {
-                                    data.resource(RType.FILE_OF_BYTES, true);
+                                    data.resource(ResourceType.FILE_OF_BYTES, true);
                                     data.int32f();
                                 }
 

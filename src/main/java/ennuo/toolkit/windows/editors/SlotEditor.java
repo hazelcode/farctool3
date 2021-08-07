@@ -9,7 +9,6 @@ import ennuo.craftworld.types.data.Vector4f;
 import ennuo.craftworld.resources.enums.ContentsType;
 import ennuo.craftworld.resources.enums.GameMode;
 import ennuo.craftworld.resources.enums.LevelType;
-import ennuo.craftworld.resources.enums.RType;
 import ennuo.craftworld.resources.enums.SlotType;
 import ennuo.craftworld.resources.structs.Slot;
 import java.awt.event.ActionEvent;
@@ -22,7 +21,10 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import ennuo.craftworld.resources.enums.Crater;
+import ennuo.craftworld.resources.enums.ResourceType;
+import ennuo.craftworld.resources.enums.SerializationType;
 import ennuo.craftworld.resources.structs.PackItem;
+import ennuo.craftworld.types.data.Revision;
 import ennuo.toolkit.utilities.Globals;
 import ennuo.toolkit.windows.Toolkit;
 import java.util.Date;
@@ -93,18 +95,18 @@ public class SlotEditor extends javax.swing.JFrame {
                 if (!madeChanges) return;
                 
                 if (type == EditorType.SLOTS) {
-                    Output output = new Output(0x5 + Slot.MAX_SIZE * (slotInstances.size() + 1),  entry.revision);
+                    Output output = new Output(0x5 + Slot.MAX_SIZE * (slotInstances.size() + 1), entry.revision);
                     output.int32(slotInstances.size());
                     for (Slot slot : slotInstances)
                         slot.serialize(output, true, false);
-                    if (output.revision == 0x3e2)
+                    if (output.revision.head == 0x3e2)
                         output.bool(false);
                     output.shrinkToFit();
                 
                     ResourcePtr[] dependencies = new ResourcePtr[slotInstances.size()];
                     dependencies = output.dependencies.toArray(dependencies);
                 
-                    byte[] compressed = Compressor.Compress(output.buffer, "SLTb", entry.revision, dependencies);
+                    byte[] compressed = Compressor.compress(output.buffer, ResourceType.SLOT_LIST, SerializationType.BINARY, entry.revision, dependencies);
                 
                     Globals.replaceEntry(entry, compressed);
                 }
@@ -1140,16 +1142,16 @@ public class SlotEditor extends javax.swing.JFrame {
             
             pack.contentsType = (ContentsType) contentsType.getSelectedItem();
             pack.contentID = contentID.getText();
-            pack.mesh = getResource(badgeMesh.getText(), RType.MESH);
+            pack.mesh = getResource(badgeMesh.getText(), ResourceType.MESH);
             pack.timestamp = ((Date)timestamp.getValue()).getTime() * 2 / 1000;
         }
         
         slot.backgroundGUID = (long) backgroundGUID.getValue();   
         
-        slot.planetDecorations = getResource(planetDecoration.getText(), RType.LEVEL);
-        slot.root = getResource(rootLevel.getText(), RType.LEVEL);
-        slot.adventure = getResource(adventure.getText(), RType.ADVENTURE_CREATE_PROFILE);
-        slot.icon = getResource(iconPtr.getText(), RType.TEXTURE);
+        slot.planetDecorations = getResource(planetDecoration.getText(), ResourceType.LEVEL);
+        slot.root = getResource(rootLevel.getText(), ResourceType.LEVEL);
+        slot.adventure = getResource(adventure.getText(), ResourceType.ADVENTURE_CREATE_PROFILE);
+        slot.icon = getResource(iconPtr.getText(), ResourceType.TEXTURE);
         
         
         slot.developerLevelType = (LevelType) levelType.getSelectedItem();
@@ -1207,7 +1209,7 @@ public class SlotEditor extends javax.swing.JFrame {
 
     int loop = 0;
     
-    private ResourcePtr getResource(String root, RType type) {
+    private ResourcePtr getResource(String root, ResourceType type) {
         if (root == null || root.equals("")) return null;
         else if (root.startsWith("g"))
             return new ResourcePtr(parseInteger(root), type);
