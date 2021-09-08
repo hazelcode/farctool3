@@ -448,6 +448,14 @@
                     </MenuItem>
                   </SubComponents>
                 </Menu>
+                <MenuItem class="javax.swing.JMenuItem" name="loadLevelJson">
+                  <Properties>
+                    <Property name="text" type="java.lang.String" value="Level File (.json)..."/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loadLevelJsonActionPerformed"/>
+                  </Events>
+                </MenuItem>
                 <MenuItem class="javax.swing.JMenuItem" name="loadMod">
                   <Properties>
                     <Property name="text" type="java.lang.String" value="Mod"/>

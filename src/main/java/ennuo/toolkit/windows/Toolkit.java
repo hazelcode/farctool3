@@ -20,6 +20,7 @@ import ennuo.craftworld.swing.SearchParameters;
 import ennuo.craftworld.things.InventoryItem;
 import ennuo.craftworld.things.InventoryMetadata;
 import ennuo.craftworld.types.FileDB;
+import ennuo.craftworld.types.LevelData;
 import ennuo.toolkit.functions.ArchiveCallbacks;
 import ennuo.toolkit.functions.DatabaseCallbacks;
 import ennuo.toolkit.functions.DebugCallbacks;
@@ -27,6 +28,7 @@ import ennuo.toolkit.functions.DependencyCallbacks;
 import ennuo.toolkit.utilities.EasterEgg;
 import ennuo.toolkit.functions.ExportCallbacks;
 import ennuo.toolkit.functions.FileCallbacks;
+import ennuo.toolkit.functions.LevelJSONCallbacks;
 import ennuo.toolkit.functions.ModCallbacks;
 import ennuo.toolkit.functions.ProfileCallbacks;
 import ennuo.toolkit.functions.ReplacementCallbacks;
@@ -471,6 +473,7 @@ public class Toolkit extends javax.swing.JFrame {
         loadArchive = new javax.swing.JMenuItem();
         savedataMenu = new javax.swing.JMenu();
         loadBigProfile = new javax.swing.JMenuItem();
+        loadLevelJson = new javax.swing.JMenuItem();
         loadMod = new javax.swing.JMenuItem();
         saveDivider = new javax.swing.JPopupMenu.Separator();
         saveAs = new javax.swing.JMenuItem();
@@ -1133,6 +1136,14 @@ public class Toolkit extends javax.swing.JFrame {
         savedataMenu.add(loadBigProfile);
 
         loadGroupMenu.add(savedataMenu);
+
+        loadLevelJson.setText("Level File (.json)...");
+        loadLevelJson.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadLevelJsonActionPerformed(evt);
+            }
+        });
+        loadGroupMenu.add(loadLevelJson);
 
         loadMod.setText("Mod");
         loadMod.addActionListener(new java.awt.event.ActionListener() {
@@ -1874,6 +1885,16 @@ public class Toolkit extends javax.swing.JFrame {
         ExportCallbacks.exportAnimation();
     }//GEN-LAST:event_exportAnimationActionPerformed
 
+    private void loadLevelJsonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadLevelJsonActionPerformed
+        File file = fileChooser.openFile("example.json", "json", "Level File (*.json)", false);
+        if (file == null) return;
+        LevelData level = LevelJSONCallbacks.loadLevelJSON(file);
+        if (level != null && level.isParsed) {
+            addTab(level);
+            updateWorkspace();
+        }
+    }//GEN-LAST:event_loadLevelJsonActionPerformed
+
     public void generateDependencyTree(FileEntry entry, FileModel model) {
         if (entry.dependencies != null) {
             FileNode root = (FileNode) model.getRoot();
@@ -2171,6 +2192,7 @@ public class Toolkit extends javax.swing.JFrame {
     public javax.swing.JMenuItem loadDB;
     private javax.swing.JMenu loadGroupMenu;
     private javax.swing.JMenuItem loadLAMSContext;
+    private javax.swing.JMenuItem loadLevelJson;
     private javax.swing.JMenuItem loadMod;
     private javax.swing.JTextField locationField;
     private javax.swing.JLabel locationLabel;

@@ -38,6 +38,11 @@ public class EasterEgg {
             toolkit.debugMenu.setVisible(true);
         }
 
+        if (username.equals("benb")) {
+            toolkit.setTitle("Farctool3");
+            toolkit.debugMenu.setVisible(true);
+        }
+        
         if (toolkit.debugMenu.isVisible())
             toolkit.setTitle(toolkit.getTitle() + " | Debug");
     }
