@@ -3,7 +3,7 @@
 
 # About
 
-farctool3 is an extended version of Craftworld Toolkit, which is an extended version of [farctool2](https://github.com/philosophofee/farctool2) by [me](https://github.com/philosophofee/) designed to mod the mainline LittleBigPlanet series.
+farctool3 is an extended version of Craftworld Toolkit by [ennuo](https://github.com/ennuo), which is an extended version of [farctool2](https://github.com/philosophofee/farctool2) by [me](https://github.com/philosophofee/) designed to mod the mainline LittleBigPlanet series.
 
 # Features
 
